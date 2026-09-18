@@ -1862,3 +1862,5 @@
 .sap-so-table tbody tr:nth-child(even) td{
   background:var(--sky);
 }
+.reversal-row td{background:#fdecea!important;color:#8a3733;font-size:11px}
+.reversal-row td small{color:#a53c38;font-weight:800;letter-spacing:.06em;font-size:8px}

@@ -23,6 +23,7 @@ import OperationMaster from './pages/OperationMaster';
 import MaterialMaster from './pages/MaterialMaster';
 import RouteMaster from './pages/RouteMaster';
 import SalesOrderMonitor from './pages/SalesOrderMonitor';
+import RmReversalReport from './pages/RmReversalReport';
 import {currentUser,token} from './lib/api';
 
 function ProtectedShell(){
@@ -41,6 +42,7 @@ export default function App(){return <Routes>
     <Route path="/modules/rm-stores" element={<Navigate to="/grn" replace/>}/>
     <Route path="/grn" element={<GRN/>}/>
     <Route path="/inventory" element={<Inventory/>}/>
+    <Route path="/rm-reversals" element={<RmReversalReport/>}/>
 
     <Route path="/planning/sales-orders" element={<SalesOrderMonitor/>}/>
     <Route path="/modules/planning" element={<Navigate to="/planning/sales-orders" replace/>}/>

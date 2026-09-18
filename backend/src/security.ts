@@ -170,3 +170,24 @@ export async function assertPlantAccess(userId: string, plantCode: string) {
     e.status=403; throw e;
   }
 }
+
+// Authorization object for RM (and future Paints) GRN/QC reversal. A single
+// object covers both reversal actions; the QC-before-GRN sequencing is
+// enforced separately by the reversal endpoints themselves.
+export const REVERSAL_AUTH_GROUP = 'RM_GRN_QC_REVERSAL_2000';
+
+export async function assertReversalAuthority(userId: string, roles: string[], client?: { query: (sql: string, params?: any[]) => Promise<any> }) {
+  if (roles.includes('ADMIN')) return;
+  const runner = client ?? { query };
+  const r = await runner.query(`
+    SELECT 1 FROM mes.app_user_access_group uag
+    JOIN mes.app_access_group g ON g.access_group_id=uag.access_group_id
+    WHERE uag.user_id=$1 AND g.group_code=$2 AND uag.is_active=true AND g.is_active=true
+      AND (uag.valid_from IS NULL OR uag.valid_from<=current_date)
+      AND (uag.valid_to IS NULL OR uag.valid_to>=current_date)
+    LIMIT 1`, [userId, REVERSAL_AUTH_GROUP]);
+  if (!r.rows?.[0]) {
+    const e:any = new Error('You are not authorized to reverse GRN or QC entries (RM GRN/QC Reversal access required).');
+    e.status = 403; throw e;
+  }
+}

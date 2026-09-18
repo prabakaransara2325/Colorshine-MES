@@ -1,8 +1,10 @@
-import {Download,FlaskConical,Layers3,ShieldCheck,X} from 'lucide-react';
+import {useState} from 'react';
+import {Download,FlaskConical,Layers3,RotateCcw,ShieldCheck,X} from 'lucide-react';
 import {Status,num,plain} from './UI';
 import {detailToAnalysisRow,downloadGrnAnalysis,downloadInventoryAnalysis} from '../lib/export';
+import {api,canReverse,clientLabel} from '../lib/api';
 
-type Props={detail:any;onClose:()=>void;mode:'grn'|'inventory'};
+type Props={detail:any;onClose:()=>void;mode:'grn'|'inventory';onReversed?:()=>void};
 
 const categoryOrder=['CHEMICAL','MECHANICAL','DIMENSION','COATING','GENERAL','SURFACE'];
 const categoryTitle:any={CHEMICAL:'Chemical Properties',MECHANICAL:'Mechanical Properties',DIMENSION:'Dimensions',COATING:'Coating',GENERAL:'Grade & General Properties',SURFACE:'Surface Properties'};
@@ -16,7 +18,9 @@ function valueOf(p:any){
   return `${shown}${uom?` ${uom}`:''}`;
 }
 
-export default function BatchAnalysisDrawer({detail,onClose,mode}:Props){
+export default function BatchAnalysisDrawer({detail,onClose,mode,onReversed}:Props){
+  const [busy,setBusy]=useState(false);
+  const [msg,setMsg]=useState('');
   const grouped=(detail?.supplierTcParameters||[]).reduce((acc:any,p:any)=>{
     const cat=p.parameter_category||'OTHER';
     (acc[cat] ||= []).push(p);
@@ -29,6 +33,31 @@ export default function BatchAnalysisDrawer({detail,onClose,mode}:Props){
     mode==='grn'?downloadGrnAnalysis([row],name):downloadInventoryAnalysis([row],name);
   };
 
+  const reverseQc=async()=>{
+    if(!detail.inspection_id){setMsg('No inspection record linked to this batch.');return}
+    const reason=window.prompt(`Reverse QC decision ${detail.ud_no||''} for batch ${detail.batch_no}?\nEnter a reason (required):`);
+    if(!reason||reason.trim().length<5){if(reason!==null)setMsg('Reason must be at least 5 characters.');return}
+    setBusy(true);setMsg('');
+    try{
+      await api(`/rm-quality/${detail.inspection_id}/reverse`,{method:'POST',body:JSON.stringify({reason:reason.trim(),clientHost:clientLabel()})});
+      setMsg('QC decision reversed. Stock returned to Quality Hold.');
+      onReversed?.();
+    }catch(e:any){setMsg(e.message)}finally{setBusy(false)}
+  };
+
+  const reverseGrn=async()=>{
+    const reason=window.prompt(`Reverse GRN ${detail.sap_grn_no||''} for batch ${detail.batch_no}?\nThis removes the live inventory entry. Enter a reason (required):`);
+    if(!reason||reason.trim().length<5){if(reason!==null)setMsg('Reason must be at least 5 characters.');return}
+    setBusy(true);setMsg('');
+    try{
+      await api(`/grn/${detail.grn_coil_id}/reverse`,{method:'POST',body:JSON.stringify({reason:reason.trim(),clientHost:clientLabel()})});
+      setMsg('GRN reversed. Live inventory entry removed; see GRN Monitor for the negative-qty reversal line.');
+      onReversed?.();
+    }catch(e:any){setMsg(e.message)}finally{setBusy(false)}
+  };
+
+  const showReversals=mode==='grn'&&canReverse()&&detail.entry_type!=='GRN_REVERSAL';
+
   return <div className="drawer-scrim" onClick={onClose}>
     <aside className="drawer analysis-drawer" onClick={e=>e.stopPropagation()}>
       <div className="drawer-head">
@@ -36,7 +65,12 @@ export default function BatchAnalysisDrawer({detail,onClose,mode}:Props){
         <button className="drawer-close" onClick={onClose}><X size={18}/></button>
       </div>
 
-      <div className="drawer-actions"><button className="secondary-btn" onClick={download}><Download size={16}/> Download Batch Analysis</button></div>
+      <div className="drawer-actions">
+        <button className="secondary-btn" onClick={download}><Download size={16}/> Download Batch Analysis</button>
+        {showReversals&&<button className="secondary-btn" disabled={busy||!['ACCEPT','CONDITIONAL_ACCEPT','REJECT'].includes(detail.current_ud)} onClick={reverseQc} title="Reverse the current QC Usage Decision"><RotateCcw size={16}/> Reverse QC</button>}
+        {showReversals&&<button className="secondary-btn" disabled={busy||['ACCEPT','CONDITIONAL_ACCEPT','REJECT'].includes(detail.current_ud)} onClick={reverseGrn} title="Reverse this GRN receipt (QC must be reversed first)"><RotateCcw size={16}/> Reverse GRN</button>}
+      </div>
+      {msg&&<div className="inline-message">{msg}</div>}
 
       <section className="analysis-section">
         <div className="analysis-section-title"><Layers3 size={17}/><h3>GRN & Supplier Identification</h3></div>

@@ -27,7 +27,13 @@ export default function GRN(){
     <div className="toolbar"><div className="search"><Search size={18}/><input placeholder="Search GRN, batch, supplier batch, heat, grade or PO…" value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter'&&load()}/></div><button className="secondary-btn" onClick={load}>Search</button></div>
     <div className="table-panel analysis-table-panel">
       <div className="responsive-table"><table className="analysis-main-table"><thead><tr><th>GRN</th><th>MES Batch</th><th>Supplier Batch</th><th>Supplier</th><th>Supplier Grade</th><th>Heat No</th><th>Steel Grade</th><th>Material</th><th>Thickness (mm)</th><th>Width (mm)</th><th>Weight (MT)</th><th>Quality</th><th>Stock</th><th>Analysis</th></tr></thead><tbody>
-      {rows.map(r=><tr key={r.grn_coil_id}>
+      {rows.map(r=>r.entry_type==='GRN_REVERSAL'?<tr key={`${r.grn_coil_id}-rev`} className="reversal-row">
+        <td><b>{r.sap_grn_no}</b><small>REVERSAL</small></td>
+        <td><b>{r.batch_no}</b></td>
+        <td colSpan={8}>Reversed by <b>{r.reversed_by}</b> on {r.reversed_at?new Date(r.reversed_at).toLocaleString('en-IN'):'—'} — {r.reversal_reason}</td>
+        <td><b className="danger-text">{num(r.batch_weight_mt)}</b></td>
+        <td colSpan={3}></td>
+      </tr>:<tr key={r.grn_coil_id}>
         <td><b>{r.sap_grn_no}</b><small>{r.sap_po_no&&`PO ${r.sap_po_no}/${r.sap_po_item||''}`}</small></td>
         <td><b>{r.batch_no}</b></td>
         <td><b>{r.vendor_batch_no||'—'}</b></td>
@@ -43,8 +49,8 @@ export default function GRN(){
         <td><Status value={Number(r.available_weight_mt)>0?'AVAILABLE':Number(r.blocked_weight_mt)>0?'BLOCKED':'QUALITY_HOLD'}/></td>
         <td><button className="icon-btn" title="View complete analysis" onClick={()=>open(r)}><Eye size={17}/></button></td>
       </tr>)}</tbody></table>{!rows.length&&<Empty/>}</div>
-      <div className="card-list">{rows.map(r=><button className="data-card" key={r.grn_coil_id} onClick={()=>open(r)}><div><Truck size={18}/><b>{r.sap_grn_no}</b><Status value={r.quality_status}/></div><h3>{r.batch_no}</h3><p>{r.supplier_name}</p><div className="data-grid"><span>Supplier Batch<b>{r.vendor_batch_no||'—'}</b></span><span>Supplier Grade<b>{r.vendor_grade||'—'}</b></span><span>Heat No<b>{r.heat_no||'—'}</b></span><span>Steel Grade<b>{r.hr_grade||'—'}</b></span><span>Size (mm)<b>{plain(r.batch_thickness_mm,3)} × {plain(r.batch_width_mm,0)}</b></span><span>Weight (MT)<b>{num(r.batch_weight_mt)}</b></span></div></button>)}</div>
+      <div className="card-list">{rows.filter(r=>r.entry_type!=='GRN_REVERSAL').map(r=><button className="data-card" key={r.grn_coil_id} onClick={()=>open(r)}><div><Truck size={18}/><b>{r.sap_grn_no}</b><Status value={r.quality_status}/></div><h3>{r.batch_no}</h3><p>{r.supplier_name}</p><div className="data-grid"><span>Supplier Batch<b>{r.vendor_batch_no||'—'}</b></span><span>Supplier Grade<b>{r.vendor_grade||'—'}</b></span><span>Heat No<b>{r.heat_no||'—'}</b></span><span>Steel Grade<b>{r.hr_grade||'—'}</b></span><span>Size (mm)<b>{plain(r.batch_thickness_mm,3)} × {plain(r.batch_width_mm,0)}</b></span><span>Weight (MT)<b>{num(r.batch_weight_mt)}</b></span></div></button>)}</div>
     </div>
-    {detail&&<BatchAnalysisDrawer detail={detail} onClose={()=>setDetail(null)} mode="grn"/>}
+    {detail&&<BatchAnalysisDrawer detail={detail} onClose={()=>setDetail(null)} mode="grn" onReversed={()=>{setDetail(null);load()}}/>}
   </>;
 }

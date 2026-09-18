@@ -6,6 +6,11 @@ export function setSession(t:string,user:any){localStorage.setItem('mes_token',t
 export function clearSession(){localStorage.removeItem('mes_token');localStorage.removeItem('mes_user');localStorage.removeItem(PLANT_KEY);}
 export function updateCurrentUser(user:any){localStorage.setItem('mes_user',JSON.stringify(user));}
 export function currentUser(){try{return JSON.parse(localStorage.getItem('mes_user')||'null')}catch{return null}}
+export const REVERSAL_AUTH_GROUP='RM_GRN_QC_REVERSAL_2000';
+export function canReverse(){const u=currentUser();if(!u)return false;if((u.roles||[]).includes('ADMIN'))return true;return (u.accessGroups||[]).some((g:any)=>g.groupCode===REVERSAL_AUTH_GROUP)}
+// Browsers cannot read the local machine's real hostname (privacy sandboxing) - this is
+// a best-effort client label only. The reliable audit anchor is the server-captured IP.
+export function clientLabel(){try{return `${navigator.platform||'unknown'} - ${navigator.userAgent.slice(0,70)}`}catch{return 'unknown'}}
 export function selectedPlant(){return localStorage.getItem(PLANT_KEY) || 'ALL';}
 export function setSelectedPlant(plant:string){localStorage.setItem(PLANT_KEY, plant || 'ALL');window.dispatchEvent(new CustomEvent('mes:plant-changed',{detail:{plant:plant || 'ALL'}}));}
 export function plantQueryParam(){const plant=selectedPlant();return plant && plant!=='ALL' ? `plant=${encodeURIComponent(plant)}` : '';}

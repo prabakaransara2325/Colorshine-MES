@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   BarChart3, Boxes, ClipboardCheck, Factory, FileText, Gauge,
   Truck, UsersRound, Warehouse, CalendarRange, PackageCheck, UserCog, Database,
-  Ruler, SlidersHorizontal, GitBranch, ListOrdered
+  Ruler, SlidersHorizontal, GitBranch, ListOrdered, RotateCcw
 } from 'lucide-react';
 
 export type MesScreen = {
@@ -41,6 +41,7 @@ export const modules: MesModule[] = [
     screens: [
       { screenNo:'1101', screenCode:'RMS_GRN_MONITOR', title:'GRN Monitor', route:'/grn', icon:Truck, moduleCode:'RMS' },
       { screenNo:'1102', screenCode:'RMS_RM_INVENTORY', title:'RM Inventory', route:'/inventory', icon:PackageCheck, moduleCode:'RMS' },
+      { screenNo:'1103', screenCode:'RMS_REVERSAL_REPORT', title:'RM Reversal Report', route:'/rm-reversals', icon:RotateCcw, moduleCode:'RMS' },
     ]
   },
   {

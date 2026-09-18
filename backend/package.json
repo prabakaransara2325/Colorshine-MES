@@ -1,6 +1,6 @@
 {
   "name": "colorshine-mes-v2-backend",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
@@ -17,7 +17,8 @@
     "repair:v0107-admin-access": "node scripts/apply-v0107-admin-access-repair.cjs",
     "migrate:v0110": "node scripts/apply-v0110-tdc-template-workflow.cjs",
     "migrate:v0111": "node scripts/apply-v0111-tdc-source-seed.cjs",
-    "migrate:v0112": "node scripts/apply-v0112-rm-qa-inbound.cjs"
+    "migrate:v0112": "node scripts/apply-v0112-rm-qa-inbound.cjs",
+    "migrate:v0113": "node scripts/apply-v0113-rm-reversal.cjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
