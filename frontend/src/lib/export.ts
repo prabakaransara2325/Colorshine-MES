@@ -151,7 +151,8 @@ export const inventoryMasterReportColumns = [
   ['Molybdenum','molybdenum'],
   ['Chromium','chromium'],
   ['Nickel','nickel'],
-  ['RM Supplier','rm_supplier']
+  ['RM Supplier','rm_supplier'],
+  ['Batch Status','stock_status']
 ] as const;
 
 export function downloadInventoryMasterReport(rows:any[],filename='InventoryMaster_MES.csv'){

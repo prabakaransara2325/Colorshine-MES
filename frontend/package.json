@@ -1,6 +1,6 @@
 {
   "name": "colorshine-mes-v2-frontend",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "private": true,
   "type": "module",
   "scripts": {

@@ -16,6 +16,7 @@ function display(key:string,value:any){
   if(key==='width_mm'||key==='so_width_mm')return fixed(value,0);
   if(key==='batch_qty_mt'||key==='so_min_wt_mt'||key==='so_max_wt_mt')return fixed(value,3);
   if(chemistryKeys.has(key))return fixed(value,3);
+  if(key==='stock_status')return String(value).replaceAll('_',' ');
   return value;
 }
 

@@ -262,8 +262,35 @@ integrationRouter.post('/rm-qa', async (req, res) => {
         await upsertResult(code, field, null, String(v), null, v);
       }
 
+      // Auto Usage Decision: PRIME quality level from SAP QA data is auto-accepted,
+      // releasing stock straight to AVAILABLE instead of waiting in QUALITY_HOLD for
+      // a manual QC decision. Only fires once, and only if no UD exists yet for the batch.
+      let autoUsageDecision: { udNo: string; decision: string } | null = null;
+      if (String(row.QUALITY_LEVEL ?? '').trim().toUpperCase() === 'PRIME') {
+        const openInsp = await client.query(`
+          SELECT inspection_id FROM mes.rm_quality_inspection
+          WHERE batch_id=$1 AND inspection_status='PENDING'
+          ORDER BY inspection_sequence DESC LIMIT 1 FOR UPDATE`, [batch.rows[0].batch_id]);
+        const noExistingUd = await client.query(`
+          SELECT 1 FROM mes.rm_usage_decision WHERE batch_id=$1 AND is_current=true LIMIT 1`, [batch.rows[0].batch_id]);
+        if (openInsp.rows[0] && !noExistingUd.rows[0]) {
+          const inspectionId = openInsp.rows[0].inspection_id;
+          await client.query(`
+            UPDATE mes.rm_quality_inspection SET inspection_status='COMPLETED',overall_result='PASS',
+              inspected_by='AUTO_PRIME_QC',inspection_started_at=COALESCE(inspection_started_at,now()),inspection_completed_at=now()
+            WHERE inspection_id=$1`, [inspectionId]);
+          const seq = await client.query(`SELECT COALESCE(count(*),0)+1 n FROM mes.rm_usage_decision WHERE batch_id=$1`, [batch.rows[0].batch_id]);
+          const udNo = `RMUD-${row.BATCH_NO}-${String(seq.rows[0].n).padStart(2, '0')}`;
+          await client.query(`
+            INSERT INTO mes.rm_usage_decision(ud_no,batch_id,inspection_id,decision,decision_reason_code,decision_reason,decided_by,source_system,sap_sync_required)
+            VALUES($1,$2,$3,'ACCEPT','AUTO_PRIME','Automatically accepted - Quality Level PRIME received from SAP QA data.',$4,'MES',false)`,
+            [udNo, batch.rows[0].batch_id, inspectionId, 'AUTO_PRIME_QC']);
+          autoUsageDecision = { udNo, decision: 'ACCEPT' };
+        }
+      }
+
       await client.query(`UPDATE mes.sap_inbound_message SET process_status='PROCESSED',processed_at=now() WHERE message_id=$1`, [message.message_id]);
-      return { batchId: batch.rows[0].batch_id, supplierTcId, characteristicsStored: stored, characteristicsSkipped: skipped };
+      return { batchId: batch.rows[0].batch_id, supplierTcId, characteristicsStored: stored, characteristicsSkipped: skipped, autoUsageDecision };
     });
     res.status(201).json({ messageId: message.message_id, ...result });
   } catch (e: any) {

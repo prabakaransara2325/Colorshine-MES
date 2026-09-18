@@ -60,6 +60,11 @@ export default function Shell(){
   const location=useLocation();
   const lastAcceptedRoute=useRef(location.pathname);
   const routeGuardBusy=useRef(false);
+  // Guards against a slow/stale working-screens POST response overwriting a newer
+  // optimistic tab list (e.g. opening screen A, then immediately clicking an
+  // already-open tab B before A's persist call returns - whichever response lands
+  // last used to win, silently dropping the other tab from the bar).
+  const workingSyncSeq=useRef(0);
   const currentScreen=useMemo(()=>screenByPath(location.pathname),[location.pathname]);
   const currentModule=moduleByCode(currentScreen.moduleCode);
   const currentModuleName=currentModule?.name ?? (currentScreen.moduleCode==='ADM'?'Administration':'MES');
@@ -149,8 +154,9 @@ export default function Shell(){
     const existing=workingScreens.some(x=>x.screen_code===currentScreen.screenCode);
     if(existing){
       lastAcceptedRoute.current=location.pathname;
+      const seq=++workingSyncSeq.current;
       void api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})})
-        .then(d=>{if(d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}).catch(()=>{});
+        .then(d=>{if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}).catch(()=>{});
       return;
     }
     if(workingScreens.length>=MAX_WORKING_SCREENS){
@@ -160,11 +166,13 @@ export default function Shell(){
       return;
     }
     routeGuardBusy.current=true;
+    const seq=++workingSyncSeq.current;
     const optimistic=applyWorkingRows([...workingScreens,makeLocalWorkingRow(currentScreen,(workingScreens.length+1)*10)]);
     lastAcceptedRoute.current=location.pathname;
     api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})})
-      .then(d=>{if(d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)})
+      .then(d=>{if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)})
       .catch((err:any)=>{
+        if(seq!==workingSyncSeq.current)return;
         if(err?.code==='MAX_WORKING_SCREENS'||err?.status===409){
           if(err?.data?.rows)applyWorkingRows(err.data.rows);else applyWorkingRows(optimistic.filter(x=>x.screen_code!==currentScreen.screenCode));
           setLimitTarget(currentScreen);
@@ -190,14 +198,16 @@ export default function Shell(){
     if(!alreadyOpen&&workingScreens.length>=MAX_WORKING_SCREENS){setLimitTarget(screen);return}
 
     setWorkingBusy(screen.screenCode);setWorkingMessage('');
+    const seq=++workingSyncSeq.current;
     if(!alreadyOpen)applyWorkingRows([...workingScreens,makeLocalWorkingRow(screen,(workingScreens.length+1)*10)]);
     lastAcceptedRoute.current=route;
     nav(route);
 
     try{
       const d=await api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:screen.screenCode})});
-      if(d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows);
+      if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows);
     }catch(err:any){
+      if(seq!==workingSyncSeq.current)return;
       if(err?.code==='MAX_WORKING_SCREENS'||err?.status===409){
         if(err?.data?.rows)applyWorkingRows(err.data.rows);
         setLimitTarget(screen);
@@ -218,6 +228,7 @@ export default function Shell(){
     if(workingBusy)return false;
     if(dirtyScreens.has(row.screen_code)&&!window.confirm(`${row.screen_name} has unsaved changes. Close this working screen?`))return false;
     setWorkingBusy(row.screen_code);
+    const seq=++workingSyncSeq.current;
     const oldRows=[...workingScreens];
     const localRows=applyWorkingRows(oldRows.filter(x=>x.screen_code!==row.screen_code));
     setDirtyScreens(prev=>{const n=new Set(prev);n.delete(row.screen_code);return n});
@@ -228,7 +239,7 @@ export default function Shell(){
     }
     try{
       const d=await api(`/user/working-screens/${encodeURIComponent(row.screen_code)}`,{method:'DELETE'});
-      if(d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows);
+      if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows);
     }catch{}
     finally{setWorkingBusy('')}
     return true;
@@ -236,7 +247,7 @@ export default function Shell(){
 
   const closeAllWorkingScreens=async()=>{
     if(workingScreens.some(x=>dirtyScreens.has(x.screen_code))&&!window.confirm('One or more working screens have unsaved changes. Close all working screens?'))return;
-    setWorkingBusy('ALL');applyWorkingRows([]);setDirtyScreens(new Set());if(isWorkingScreen(currentScreen)){lastAcceptedRoute.current='/';nav('/')}
+    setWorkingBusy('ALL');++workingSyncSeq.current;applyWorkingRows([]);setDirtyScreens(new Set());if(isWorkingScreen(currentScreen)){lastAcceptedRoute.current='/';nav('/')}
     try{await api('/user/working-screens',{method:'DELETE'})}catch{}finally{setWorkingBusy('')}
   };
 
@@ -245,8 +256,9 @@ export default function Shell(){
     const others=workingScreens.filter(x=>x.screen_code!==currentScreen.screenCode);
     if(others.some(x=>dirtyScreens.has(x.screen_code))&&!window.confirm('One or more other working screens have unsaved changes. Close them?'))return;
     setWorkingBusy('OTHERS');
+    const seq=++workingSyncSeq.current;
     const keep=workingScreens.filter(x=>x.screen_code===currentScreen.screenCode);applyWorkingRows(keep);setDirtyScreens(prev=>new Set([...prev].filter(x=>x===currentScreen.screenCode)));
-    try{const d=await api('/user/working-screens/close-others',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})});if(d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}catch{}finally{setWorkingBusy('')}
+    try{const d=await api('/user/working-screens/close-others',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})});if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}catch{}finally{setWorkingBusy('')}
   };
 
   const closeOneThenOpenRequested=async(row:WorkingScreenRow)=>{
@@ -383,7 +395,7 @@ export default function Shell(){
       {workingMessage&&<div className="working-toast" role="status">{workingMessage}</div>}
 
       <section className="content full-content"><Outlet/></section>
-      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.3 <i/> Steel That Delivers Trust</span></footer>
+      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.4 <i/> Steel That Delivers Trust</span></footer>
     </main>
 
     {launcherOpen&&<div className="module-launcher-overlay" onClick={()=>setLauncherOpen(false)}>
