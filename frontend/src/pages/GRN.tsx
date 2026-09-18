@@ -50,6 +50,6 @@ export default function GRN(){
       })}</tbody></table>{!rows.length&&<Empty/>}</div>
       <div className="card-list">{rows.filter(r=>r.entry_type!=='GRN_REVERSAL').map(r=><button className="data-card" key={r.grn_coil_id} onClick={()=>open(r)}><div><Truck size={18}/><b>{r.sap_grn_no}</b><Status value={r.quality_status}/></div><h3>{r.batch_no}</h3><p>{r.supplier_name}</p><div className="data-grid"><span>Supplier Batch<b>{r.vendor_batch_no||'—'}</b></span><span>Supplier Grade<b>{r.vendor_grade||'—'}</b></span><span>Heat No<b>{r.heat_no||'—'}</b></span><span>Steel Grade<b>{r.hr_grade||'—'}</b></span><span>Size (mm)<b>{plain(r.batch_thickness_mm,3)} × {plain(r.batch_width_mm,0)}</b></span><span>Weight (MT)<b>{num(r.batch_weight_mt)}</b></span></div></button>)}</div>
     </div>
-    {detail&&<BatchAnalysisDrawer detail={detail} onClose={()=>setDetail(null)} mode="grn" onReversed={()=>{setDetail(null);load()}}/>}
+    {detail&&<BatchAnalysisDrawer detail={detail} onClose={()=>setDetail(null)} mode="grn"/>}
   </>;
 }
