@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  BarChart3, Boxes, ClipboardCheck, Factory, FileText, Gauge, LayoutDashboard,
+  BarChart3, Boxes, ClipboardCheck, Factory, FileText, Gauge,
   Truck, UsersRound, Warehouse, CalendarRange, PackageCheck, UserCog, Database,
   Ruler, SlidersHorizontal, GitBranch, ListOrdered
 } from 'lucide-react';
@@ -36,10 +36,9 @@ export const overviewScreen: MesScreen = {
 export const modules: MesModule[] = [
   {
     code: 'RMS', number: '1', name: 'RM Stores', icon: Warehouse,
-    route: '/modules/rm-stores',
+    route: '/grn',
     description: 'Raw-material receipt, traceability and inventory',
     screens: [
-      { screenNo:'1000', screenCode:'RMS_DASHBOARD', title:'RM Stores Dashboard', route:'/modules/rm-stores', icon:LayoutDashboard, moduleCode:'RMS' },
       { screenNo:'1101', screenCode:'RMS_GRN_MONITOR', title:'GRN Monitor', route:'/grn', icon:Truck, moduleCode:'RMS' },
       { screenNo:'1102', screenCode:'RMS_RM_INVENTORY', title:'RM Inventory', route:'/inventory', icon:PackageCheck, moduleCode:'RMS' },
     ]
@@ -75,10 +74,9 @@ export const modules: MesModule[] = [
   },
   {
     code: 'MDM', number: '7', name: 'Masters', icon: Database,
-    route: '/modules/masters',
+    route: '/masters/thickness-matrix',
     description: 'Manufacturing master data for planning, production and quality',
     screens: [
-      { screenNo:'7000', screenCode:'MDM_DASHBOARD', title:'Masters Control Center', route:'/modules/masters', icon:LayoutDashboard, moduleCode:'MDM' },
       { screenNo:'7101', screenCode:'MDM_THICKNESS_MATRIX', title:'Thickness Matrix', route:'/masters/thickness-matrix', icon:Ruler, moduleCode:'MDM' },
       { screenNo:'7102', screenCode:'MDM_WORK_CENTERS', title:'Work Center Master', route:'/masters/work-centers', icon:Factory, moduleCode:'MDM' },
       { screenNo:'7103', screenCode:'MDM_WC_TOLERANCE', title:'Work Center Tolerance Matrix', route:'/masters/work-center-tolerance', icon:SlidersHorizontal, moduleCode:'MDM' },

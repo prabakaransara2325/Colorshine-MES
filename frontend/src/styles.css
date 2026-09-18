@@ -32,6 +32,7 @@
 /* Dashboard: operational content only. */
 .overview-kpis{margin-bottom:16px}
 .dashboard-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,.8fr);gap:16px}
+.dashboard-grid-single{grid-template-columns:minmax(0,1fr);max-width:520px}
 .dashboard-panel{padding:0;overflow:hidden}
 .panel-title{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
 .panel-title h3{margin:0;font-size:15px;font-family:Manrope}
@@ -1840,3 +1841,17 @@
 @media(max-width:900px){.tdc-general-grid{grid-template-columns:1fr 1fr}.tdc-general-grid label.wide{grid-column:span 2}.tdc-approval-strip,.tdc-approval-meta{grid-template-columns:1fr 1fr}.tdc-document-bar{align-items:flex-start;flex-direction:column}.tdc-document-bar>div:first-child{flex-wrap:wrap}}
 
 /* v0.11.1: TDC source templates/defaults and initial historical TDC seed; no visual layout change. */
+
+/* v0.11.2 - unified dark navy table headers + zebra row striping, all screens */
+.responsive-table th,.master-table th,.parameter-table th,.parameter-head,.tdc-char-head,
+.sap-so-table thead th,.sap-so-detail-info th,
+.analysis-main-table thead th:nth-child(3),.analysis-main-table thead th:nth-child(5),
+.analysis-main-table thead th:nth-child(6),.analysis-main-table thead th:nth-child(7){
+  background:var(--navy)!important;color:#fff!important;
+}
+.responsive-table tbody tr:not(.inactive-row):nth-child(even) td,
+.master-table tbody tr:not(.inactive-row):nth-child(even) td,
+.parameter-table tbody tr:nth-child(even) td,
+.sap-so-table tbody tr:nth-child(even) td{
+  background:var(--sky);
+}

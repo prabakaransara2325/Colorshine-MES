@@ -1,7 +1,7 @@
 import { useEffect,useMemo,useState } from 'react';
 import { api, plantQueryParam, selectedPlant, subscribePlantChange } from '../lib/api';
 import { ArrowRight, BellRing, Star, X } from 'lucide-react';
-import {Empty,PageHeader,Status,num} from '../components/UI';
+import {PageHeader,num} from '../components/UI';
 import { moduleByCode, screenByCode } from '../navigation';
 
 type FavoriteRow={
@@ -16,7 +16,6 @@ type FavoriteRow={
 
 export default function Dashboard(){
   const[d,setD]=useState<any>({});
-  const[recent,setRecent]=useState<any[]>([]);
   const[favorites,setFavorites]=useState<FavoriteRow[]>([]);
   const[plant,setPlant]=useState(selectedPlant());
   const openMesScreen=(screenCode:string,route:string)=>window.dispatchEvent(new CustomEvent('mes:open-screen',{detail:{screenCode,route}}));
@@ -27,7 +26,6 @@ export default function Dashboard(){
   useEffect(()=>{
     const q=plantQueryParam();
     api(`/dashboard/summary${q?`?${q}`:''}`).then(setD).catch(console.error);
-    api(`/grn?limit=6${q?`&${q}`:''}`).then(x=>setRecent(x.rows||[])).catch(console.error);
   },[plant]);
   useEffect(()=>{
     loadFavorites();
@@ -71,22 +69,14 @@ export default function Dashboard(){
       </div>:<div className="favorites-empty"><div><Star size={19}/><span>No favorite screens selected yet.</span></div><button onClick={()=>window.dispatchEvent(new CustomEvent('mes:open-launcher'))}>Choose Favorites</button></div>}
     </section>
 
-    <div className="dashboard-grid dashboard-grid-v3">
-      <section className="panel dashboard-panel">
-        <div className="panel-title panel-title-spread"><div><h3>Recent GRN coils</h3><p>Latest receipts available in MES.</p></div><button className="secondary-btn compact-btn" onClick={()=>openMesScreen('RMS_GRN_MONITOR','/grn')}>View All</button></div>
-        <div className="responsive-table compact-table"><table><thead><tr><th>GRN</th><th>Batch</th><th>Supplier</th><th>Material</th><th>Weight</th><th>Quality</th></tr></thead><tbody>
-          {recent.map(r=><tr key={r.grn_coil_id}><td><b>{r.sap_grn_no}</b></td><td>{r.batch_no}</td><td>{r.supplier_name||'—'}</td><td>{r.sap_material_code}</td><td>{num(r.batch_weight_mt)} MT</td><td><Status value={r.quality_status}/></td></tr>)}
-        </tbody></table>{!recent.length&&<Empty text="No GRN records yet"/>}</div>
-        <div className="dashboard-mobile-list">{recent.map(r=><div className="dashboard-row-card" key={r.grn_coil_id}><div><b>{r.batch_no}</b><small>{r.sap_grn_no}</small></div><div><span>{r.supplier_name||'—'}</span><strong>{num(r.batch_weight_mt)} MT</strong></div><Status value={r.quality_status}/></div>)}</div>
-      </section>
-
+    <div className="dashboard-grid dashboard-grid-single">
       <section className="panel dashboard-panel attention-panel">
         <div className="panel-title"><div className="panel-title-icon"><BellRing size={18}/><div><h3>Execution attention</h3><p>Items requiring operational follow-up.</p></div></div></div>
         <div className="attention-list">
           <div><span>Pending RM Usage Decision</span><b>{d.pending_batches??0} batches</b></div>
-          <div><span>Quality-hold stock</span><b>{num(d.quality_hold_mt)} MT</b></div>
-          <div><span>Blocked stock</span><b>{num(d.blocked_mt)} MT</b></div>
-          <div className="attention-positive"><span>Production-ready RM</span><b>{num(d.available_mt)} MT</b></div>
+          <div><span>Quality-hold stock (MT)</span><b>{num(d.quality_hold_mt)}</b></div>
+          <div><span>Blocked stock (MT)</span><b>{num(d.blocked_mt)}</b></div>
+          <div className="attention-positive"><span>Production-ready RM (MT)</span><b>{num(d.available_mt)}</b></div>
         </div>
       </section>
     </div>

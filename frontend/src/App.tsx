@@ -13,7 +13,6 @@ import Login from './pages/Login';
 import Users from './pages/Users';
 import UserEditor from './pages/UserEditor';
 import ChangePassword from './pages/ChangePassword';
-import MastersDashboard from './pages/MastersDashboard';
 import ScreenRedirect from './pages/ScreenRedirect';
 import ThicknessMatrix from './pages/ThicknessMatrix';
 import WorkCenters from './pages/WorkCenters';
@@ -23,7 +22,6 @@ import GroupCodes from './pages/GroupCodes';
 import OperationMaster from './pages/OperationMaster';
 import MaterialMaster from './pages/MaterialMaster';
 import RouteMaster from './pages/RouteMaster';
-import RMStoresDashboard from './pages/RMStoresDashboard';
 import SalesOrderMonitor from './pages/SalesOrderMonitor';
 import {currentUser,token} from './lib/api';
 
@@ -40,7 +38,7 @@ export default function App(){return <Routes>
   <Route element={<ProtectedShell/>}>
     <Route path="/" element={<Dashboard/>}/>
 
-    <Route path="/modules/rm-stores" element={<RMStoresDashboard/>}/>
+    <Route path="/modules/rm-stores" element={<Navigate to="/grn" replace/>}/>
     <Route path="/grn" element={<GRN/>}/>
     <Route path="/inventory" element={<Inventory/>}/>
 
@@ -59,8 +57,8 @@ export default function App(){return <Routes>
     <Route path="/reports/plant-stock" element={<PlantStockReport/>}/>
     <Route path="/modules/reports" element={<Navigate to="/suppliers" replace/>}/>
 
-    <Route path="/modules/masters" element={<MastersDashboard/>}/>
-    <Route path="/masters" element={<Navigate to="/modules/masters" replace/>}/>
+    <Route path="/modules/masters" element={<Navigate to="/masters/thickness-matrix" replace/>}/>
+    <Route path="/masters" element={<Navigate to="/masters/thickness-matrix" replace/>}/>
     <Route path="/masters/thickness-matrix" element={<ThicknessMatrix/>}/>
     <Route path="/masters/work-centers" element={<WorkCenters/>}/>
     <Route path="/masters/work-center-tolerance" element={<WorkCenterTolerance/>}/>

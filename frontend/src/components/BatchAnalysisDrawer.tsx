@@ -53,9 +53,9 @@ export default function BatchAnalysisDrawer({detail,onClose,mode}:Props){
           <span>Material<b>{detail.sap_material_code||'—'}</b></span>
           <span>Thickness (mm)<b>{detail.batch_thickness_mm?plain(detail.batch_thickness_mm,3):'—'}</b></span>
           <span>Width (mm)<b>{detail.batch_width_mm?plain(detail.batch_width_mm,0):'—'}</b></span>
-          <span>Received Weight<b>{detail.batch_weight_mt?`${num(detail.batch_weight_mt)} MT`:'—'}</b></span>
+          <span>Received Weight (MT)<b>{detail.batch_weight_mt?num(detail.batch_weight_mt):'—'}</b></span>
           <span>Quality<b><Status value={detail.quality_status}/></b></span>
-          {mode==='inventory'&&<><span>On Hand<b>{num(detail.on_hand_weight_mt)} MT</b></span><span>Available<b>{num(detail.available_weight_mt)} MT</b></span><span>Quality Hold<b>{num(detail.quality_hold_weight_mt)} MT</b></span><span>Blocked<b>{num(detail.blocked_weight_mt)} MT</b></span></>}
+          {mode==='inventory'&&<><span>On Hand (MT)<b>{num(detail.on_hand_weight_mt)}</b></span><span>Available (MT)<b>{num(detail.available_weight_mt)}</b></span><span>Quality Hold (MT)<b>{num(detail.quality_hold_weight_mt)}</b></span><span>Blocked (MT)<b>{num(detail.blocked_weight_mt)}</b></span></>}
         </div>
       </section>
 
