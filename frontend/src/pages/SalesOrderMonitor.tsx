@@ -4,7 +4,7 @@ import {api,plantQueryParam,subscribePlantChange} from '../lib/api';
 
 const blank={soNo:'',item:'',material:'',customer:'',status:''};
 function n(v:any,d=3){const x=Number(v??0);return Number.isFinite(x)?x.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d}):''}
-function plain(v:any,d=0){if(v===null||v===undefined||v==='')return '—';const x=Number(v);if(!Number.isFinite(x))return String(v);return d>0?x.toFixed(d):String(Math.round(x))}
+function plain(v:any,d=0){if(v===null||v===undefined||v==='')return '—';const x=Number(v);if(!Number.isFinite(x))return String(v);if(x===0)return '—';return d>0?x.toFixed(d):String(Math.round(x))}
 function txt(v:any){const s=String(v??'').trim();return s||'—'}
 function date(v:any){if(!v)return '—';const s=String(v).slice(0,10);if(/^\d{4}-\d{2}-\d{2}$/.test(s)){const [y,m,d]=s.split('-');return `${d}-${m}-${y}`}return String(v)}
 function st(v:string){return String(v||'').replaceAll('_',' ')}

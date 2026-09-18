@@ -5,7 +5,7 @@ import {PageHeader,Status} from '../components/UI';
 
 const blank:any={materialCode:'',productGroup:'GL',coatingGsm:'',variantNo:1,finishedTarget:'',finishedTolerance:'0.005',crTarget:'',crTolerance:'0.005',hrTarget:'',hrMin:'',hrMax:'',validationStatus:'REVIEW',validationNotes:'',isActive:false,effectiveFrom:'',effectiveTo:''};
 const val=(v:any)=>v===null||v===undefined?'':String(v);
-const fmt3=(v:any)=>v===null||v===undefined?'—':Number(v).toFixed(3);
+const fmt3=(v:any)=>{if(v===null||v===undefined)return '—';const n=Number(v);return n===0?'—':n.toFixed(3)};
 const calc=(target:any,tol:any,dir:-1|1)=>target===''||target===null||target===undefined?'—':(Number(target)+dir*Number(tol||0.005)).toFixed(3);
 const rowForm=(r:any)=>({materialCode:val(r.material_code),productGroup:val(r.product_group),coatingGsm:val(r.coating_gsm),variantNo:r.matrix_variant_no||1,finishedTarget:val(r.finished_thk_target_mm),finishedTolerance:val(r.finished_tolerance_mm||0.005),crTarget:val(r.cr_thk_target_mm),crTolerance:val(r.cr_tolerance_mm||0.005),hrTarget:val(r.hr_thk_target_mm),hrMin:val(r.hr_thk_min_mm),hrMax:val(r.hr_thk_max_mm),validationStatus:r.validation_status||'REVIEW',validationNotes:r.validation_notes||'',isActive:Boolean(r.is_active),effectiveFrom:r.effective_from?String(r.effective_from).slice(0,10):'',effectiveTo:r.effective_to?String(r.effective_to).slice(0,10):''});
 

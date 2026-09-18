@@ -11,7 +11,7 @@ const emptyFilters={materialCode:'',storageLocation:'',category:'',thickness:'',
 const chemistryKeys=new Set(['carbon','manganese','sulphur','phosphorus','silicon','aluminium','carbon_equivalent','nitrogen','copper','chromium','nickel']);
 
 function d(v:any){if(!v)return '';const s=String(v);if(/^\d{4}-\d{2}-\d{2}/.test(s)){const [y,m,dd]=s.slice(0,10).split('-');return `${dd}-${m}-${y}`}return s}
-function fixed(v:any,decimals:number){if(v===null||v===undefined||v==='')return '';const x=Number(v);return Number.isFinite(x)?x.toFixed(decimals):String(v)}
+function fixed(v:any,decimals:number){if(v===null||v===undefined||v==='')return '';const x=Number(v);if(!Number.isFinite(x))return String(v);return x===0?'—':x.toFixed(decimals)}
 function display(key:string,value:any){
   if(value===null||value===undefined)return '';
   if(key==='stock_generated_date'||key==='mother_stock_grn_date')return d(value);

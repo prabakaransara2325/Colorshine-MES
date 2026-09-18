@@ -12,6 +12,7 @@ function valueOf(p:any){
   if(v===null||v===undefined||v==='') return '—';
   const n=Number(v);
   const uom=p.uom||p.default_uom;
+  if(Number.isFinite(n)&&p.numeric_value!=null&&n===0) return '—';
   const shown=Number.isFinite(n)&&p.numeric_value!=null?n.toFixed(uom==='%'?2:3):v;
   return `${shown}${uom?` ${uom}`:''}`;
 }

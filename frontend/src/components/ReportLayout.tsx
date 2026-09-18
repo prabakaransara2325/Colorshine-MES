@@ -210,6 +210,6 @@ export function ReportLayoutBar({title,state}:{title:string;state:ReturnType<typ
 export function ReportSummaryBar({count,countLabel='No. of Coils',qty,qtyLabel='Total Qty (MT)'}:{count:number;countLabel?:string;qty:number;qtyLabel?:string}){
   return <div className="report-summary-bar">
     <span>{countLabel}<b>{count.toLocaleString('en-IN')}</b></span>
-    <span>{qtyLabel}<b>{qty.toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3})}</b></span>
+    <span>{qtyLabel}<b>{qty===0?'—':qty.toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3})}</b></span>
   </div>;
 }

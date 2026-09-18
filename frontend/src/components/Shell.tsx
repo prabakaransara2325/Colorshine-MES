@@ -65,6 +65,19 @@ export default function Shell(){
   // already-open tab B before A's persist call returns - whichever response lands
   // last used to win, silently dropping the other tab from the bar).
   const workingSyncSeq=useRef(0);
+  // Two working-screens mutations fired close together (open A, then touch B)
+  // can otherwise reach the backend as genuinely concurrent requests and
+  // interleave inside the database itself - so even the "latest" response can
+  // come back missing the other tab, no matter which client-side response
+  // wins. Chaining every call through one promise queue forces them to run
+  // one at a time, so each request's server-side read always reflects the
+  // previous one's completed write.
+  const workingScreensChain=useRef<Promise<any>>(Promise.resolve());
+  function queueWorkingScreensCall<T>(fn:()=>Promise<T>):Promise<T>{
+    const run=workingScreensChain.current.then(fn,fn);
+    workingScreensChain.current=run.then(()=>{},()=>{});
+    return run;
+  }
   const currentScreen=useMemo(()=>screenByPath(location.pathname),[location.pathname]);
   const currentModule=moduleByCode(currentScreen.moduleCode);
   const currentModuleName=currentModule?.name ?? (currentScreen.moduleCode==='ADM'?'Administration':'MES');
@@ -90,13 +103,13 @@ export default function Shell(){
   const loadWorkingScreens=()=>{
     const cached=readWorkingCache();
     if(cached.length)setWorkingScreens(cached);
-    return api('/user/working-screens').then(async d=>{
+    return queueWorkingScreensCall(()=>api('/user/working-screens')).then(async d=>{
       if(d?.storageReady===false){setWorkingLoaded(true);return}
       const remote=normalizeWorkingRows(d.rows||[]);
       if(!remote.length&&cached.length){
         // Restore the user's locally remembered tabs to PostgreSQL after a backend/migration restart.
-        for(const row of cached){try{await api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:row.screen_code})})}catch{break}}
-        try{const synced=await api('/user/working-screens');if(synced?.storageReady!==false)applyWorkingRows(synced.rows||cached);else applyWorkingRows(cached)}catch{applyWorkingRows(cached)}
+        for(const row of cached){try{await queueWorkingScreensCall(()=>api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:row.screen_code})}))}catch{break}}
+        try{const synced=await queueWorkingScreensCall(()=>api('/user/working-screens'));if(synced?.storageReady!==false)applyWorkingRows(synced.rows||cached);else applyWorkingRows(cached)}catch{applyWorkingRows(cached)}
       }else applyWorkingRows(remote);
       setWorkingLoaded(true);
     }).catch(()=>{applyWorkingRows(cached);setWorkingLoaded(true)});
@@ -106,6 +119,44 @@ export default function Shell(){
     setScreenInput(currentScreen.screenNo);
     if(currentScreen.moduleCode!=='MES'&&currentScreen.moduleCode!=='ADM')setSelectedModule(currentScreen.moduleCode);
   },[currentScreen]);
+
+  // Double-tap Alt toggles back to the previously active working screen (SAP/IDE-style
+  // "switch to last screen"). Tracks the working-screen tab history, not raw routes.
+  const previousWorkingScreenCode=useRef<string|null>(null);
+  const currentWorkingScreenCode=useRef<string|null>(null);
+  useEffect(()=>{
+    if(!isWorkingScreen(currentScreen))return;
+    if(currentWorkingScreenCode.current&&currentWorkingScreenCode.current!==currentScreen.screenCode){
+      previousWorkingScreenCode.current=currentWorkingScreenCode.current;
+    }
+    currentWorkingScreenCode.current=currentScreen.screenCode;
+  },[currentScreen.screenCode]);
+
+  useEffect(()=>{
+    let lastAltTapAt=0;
+    let altHeldAlone=true;
+    const DOUBLE_TAP_MS=400;
+    function onKeyDown(e:KeyboardEvent){if(e.key!=='Alt')altHeldAlone=false}
+    function onKeyUp(e:KeyboardEvent){
+      if(e.key!=='Alt')return;
+      const wasAlone=altHeldAlone;
+      altHeldAlone=true;
+      if(!wasAlone)return;
+      const now=Date.now();
+      if(now-lastAltTapAt<DOUBLE_TAP_MS){
+        lastAltTapAt=0;
+        const code=previousWorkingScreenCode.current;
+        const row=code?workingScreens.find(x=>x.screen_code===code):undefined;
+        if(row){e.preventDefault();void openScreen(row.route_path)}
+      }else{
+        lastAltTapAt=now;
+      }
+    }
+    window.addEventListener('keydown',onKeyDown);
+    window.addEventListener('keyup',onKeyUp);
+    return()=>{window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp)};
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[workingScreens]);
 
   useEffect(()=>{
     api('/auth/me').then(d=>{
@@ -155,7 +206,7 @@ export default function Shell(){
     if(existing){
       lastAcceptedRoute.current=location.pathname;
       const seq=++workingSyncSeq.current;
-      void api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})})
+      void queueWorkingScreensCall(()=>api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})}))
         .then(d=>{if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}).catch(()=>{});
       return;
     }
@@ -169,7 +220,7 @@ export default function Shell(){
     const seq=++workingSyncSeq.current;
     const optimistic=applyWorkingRows([...workingScreens,makeLocalWorkingRow(currentScreen,(workingScreens.length+1)*10)]);
     lastAcceptedRoute.current=location.pathname;
-    api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})})
+    queueWorkingScreensCall(()=>api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})}))
       .then(d=>{if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)})
       .catch((err:any)=>{
         if(seq!==workingSyncSeq.current)return;
@@ -204,7 +255,7 @@ export default function Shell(){
     nav(route);
 
     try{
-      const d=await api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:screen.screenCode})});
+      const d=await queueWorkingScreensCall(()=>api('/user/working-screens',{method:'POST',body:JSON.stringify({screenCode:screen.screenCode})}));
       if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows);
     }catch(err:any){
       if(seq!==workingSyncSeq.current)return;
@@ -238,7 +289,7 @@ export default function Shell(){
       const route=next?.route_path||'/';lastAcceptedRoute.current=route;nav(route);
     }
     try{
-      const d=await api(`/user/working-screens/${encodeURIComponent(row.screen_code)}`,{method:'DELETE'});
+      const d=await queueWorkingScreensCall(()=>api(`/user/working-screens/${encodeURIComponent(row.screen_code)}`,{method:'DELETE'}));
       if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows);
     }catch{}
     finally{setWorkingBusy('')}
@@ -248,7 +299,7 @@ export default function Shell(){
   const closeAllWorkingScreens=async()=>{
     if(workingScreens.some(x=>dirtyScreens.has(x.screen_code))&&!window.confirm('One or more working screens have unsaved changes. Close all working screens?'))return;
     setWorkingBusy('ALL');++workingSyncSeq.current;applyWorkingRows([]);setDirtyScreens(new Set());if(isWorkingScreen(currentScreen)){lastAcceptedRoute.current='/';nav('/')}
-    try{await api('/user/working-screens',{method:'DELETE'})}catch{}finally{setWorkingBusy('')}
+    try{await queueWorkingScreensCall(()=>api('/user/working-screens',{method:'DELETE'}))}catch{}finally{setWorkingBusy('')}
   };
 
   const closeOtherWorkingScreens=async()=>{
@@ -258,7 +309,7 @@ export default function Shell(){
     setWorkingBusy('OTHERS');
     const seq=++workingSyncSeq.current;
     const keep=workingScreens.filter(x=>x.screen_code===currentScreen.screenCode);applyWorkingRows(keep);setDirtyScreens(prev=>new Set([...prev].filter(x=>x===currentScreen.screenCode)));
-    try{const d=await api('/user/working-screens/close-others',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})});if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}catch{}finally{setWorkingBusy('')}
+    try{const d=await queueWorkingScreensCall(()=>api('/user/working-screens/close-others',{method:'POST',body:JSON.stringify({screenCode:currentScreen.screenCode})}));if(seq===workingSyncSeq.current&&d?.storageReady!==false&&d.rows)applyWorkingRows(d.rows)}catch{}finally{setWorkingBusy('')}
   };
 
   const closeOneThenOpenRequested=async(row:WorkingScreenRow)=>{
@@ -395,7 +446,7 @@ export default function Shell(){
       {workingMessage&&<div className="working-toast" role="status">{workingMessage}</div>}
 
       <section className="content full-content"><Outlet/></section>
-      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.6 <i/> Steel That Delivers Trust</span></footer>
+      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.7 <i/> Steel That Delivers Trust</span></footer>
     </main>
 
     {launcherOpen&&<div className="module-launcher-overlay" onClick={()=>setLauncherOpen(false)}>

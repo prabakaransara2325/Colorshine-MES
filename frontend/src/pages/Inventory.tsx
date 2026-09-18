@@ -26,7 +26,8 @@ const chemistryKeys=new Set([
 function fixed(v:any,decimals:number){
   if(v===null||v===undefined||v==='')return '';
   const n=Number(v);
-  return Number.isFinite(n)?n.toFixed(decimals):String(v);
+  if(!Number.isFinite(n))return String(v);
+  return n===0?'—':n.toFixed(decimals);
 }
 
 function display(key:string,value:any){
