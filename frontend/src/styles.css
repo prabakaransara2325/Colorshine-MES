@@ -34,12 +34,12 @@
 .dashboard-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,.8fr);gap:16px}
 .dashboard-grid-single{grid-template-columns:minmax(0,1fr);max-width:520px}
 .dashboard-panel{padding:0;overflow:hidden}
-.panel-title{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.panel-title{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
 .panel-title h3{margin:0;font-size:15px;font-family:Manrope}
 .panel-title p{margin:4px 0 0;color:var(--muted);font-size:10px}
 .compact-table table{min-width:760px}.compact-table th{padding:10px 14px}.compact-table td{padding:12px 14px}
-.attention-list{padding:8px 20px 16px}
-.attention-list>div{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 0;border-bottom:1px solid #edf1f5}
+.attention-list{padding:4px 16px 10px}
+.attention-list>div{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #edf1f5}
 .attention-list>div:last-child{border-bottom:0}.attention-list span{font-size:11px;color:var(--muted)}.attention-list b{font-size:13px;white-space:nowrap}
 .attention-list .attention-positive b{color:var(--green)}
 .dashboard-mobile-list{display:none}
@@ -1313,8 +1313,8 @@
 /* v0.8.3 - Per-user Favorites + dashboard shortcut island                    */
 /* ========================================================================== */
 .favorites-island{
-  margin:14px 0 18px;
-  padding:13px 14px 14px;
+  margin:10px 0 12px;
+  padding:10px 14px 12px;
   border:1px solid #d6e3ee;
   border-radius:17px;
   background:linear-gradient(135deg,#f8fbfe 0%,#eef5fb 58%,#f8fbff 100%);

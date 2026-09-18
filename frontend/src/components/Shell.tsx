@@ -388,7 +388,7 @@ export default function Shell(){
 
     {launcherOpen&&<div className="module-launcher-overlay" onClick={()=>setLauncherOpen(false)}>
       <section className="module-launcher" data-module={selectedModule} onClick={e=>e.stopPropagation()}>
-        <header className="module-launcher-head"><div><span>COLORSHINE MES</span><h2>Active Modules & Screens</h2><p>Only implemented screens are shown. We will add new screens here as each process is completed.</p></div><button onClick={()=>setLauncherOpen(false)} aria-label="Close module launcher"><X/></button></header>
+        <header className="module-launcher-head"><div><span>COLORSHINE MES</span><h2>Active Modules & Screens</h2></div><button onClick={()=>setLauncherOpen(false)} aria-label="Close module launcher"><X/></button></header>
         <div className="module-launcher-body">
           <div className="module-list">
             <div className="module-home-card">
@@ -405,10 +405,10 @@ export default function Shell(){
           </div>
           <div className="module-screen-list" data-module={selectedModule}>
             {selectedModule==='ADM'&&isAdmin?<>
-              <div className="module-screen-heading"><span>ADMINISTRATION</span><h3>Administration Screens</h3><p>Only active user and access screens are shown.</p></div>
+              <div className="module-screen-heading"><span>ADMINISTRATION</span><h3>Administration Screens</h3></div>
               <div className="launcher-screen-grid">{adminScreens.map(s=><LauncherScreenCard key={s.screenCode} screen={s} label="Open screen"/>)}</div>
             </>:<>
-              <div className="module-screen-heading"><span>MODULE {activeModule.number} · {activeModule.code}</span><h3>{activeModule.name}</h3><p>{activeModule.description}.</p></div>
+              <div className="module-screen-heading"><span>MODULE {activeModule.number} · {activeModule.code}</span><h3>{activeModule.name}</h3></div>
               <div className="launcher-screen-grid">{activeModule.screens.map(s=><LauncherScreenCard key={s.screenCode} screen={s} label="Open screen"/>)}</div>
             </>}
           </div>

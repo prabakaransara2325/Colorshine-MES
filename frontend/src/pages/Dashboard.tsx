@@ -51,7 +51,7 @@ export default function Dashboard(){
 
     <section className="favorites-island" aria-label="My Favorites">
       <div className="favorites-island-head">
-        <div className="favorites-title"><span className="favorites-star"><Star size={17} fill="currentColor"/></span><div><h3>My Favorites</h3><p>Your personal shortcuts to frequently used MES screens.</p></div></div>
+        <div className="favorites-title"><span className="favorites-star"><Star size={17} fill="currentColor"/></span><div><h3>My Favorites</h3></div></div>
         <span className="favorites-count">{favorites.length}/8</span>
       </div>
       {favoriteTiles.length?<div className="favorite-tile-grid">
@@ -71,7 +71,7 @@ export default function Dashboard(){
 
     <div className="dashboard-grid dashboard-grid-single">
       <section className="panel dashboard-panel attention-panel">
-        <div className="panel-title"><div className="panel-title-icon"><BellRing size={18}/><div><h3>Execution attention</h3><p>Items requiring operational follow-up.</p></div></div></div>
+        <div className="panel-title"><div className="panel-title-icon"><BellRing size={18}/><div><h3>Execution attention</h3></div></div></div>
         <div className="attention-list">
           <div><span>Pending RM Usage Decision</span><b>{d.pending_batches??0} batches</b></div>
           <div><span>Quality-hold stock (MT)</span><b>{num(d.quality_hold_mt)}</b></div>
