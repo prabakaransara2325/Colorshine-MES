@@ -119,48 +119,86 @@ integrationRouter.post('/grn', async (req, res) => {
 // ---------------------------------------------------------------------------
 // v0.11.2 SAP RM QA / Supplier TC inbound (second ERP touch on RM GRN data,
 // posted once QA/TC results are available for a batch already received via
-// POST /grn). Unknown characteristic codes are skipped, not fatal, since
-// quality_parameter_master is populated independently.
+// POST /grn). Field names mirror the real SAP interface table
+// IFTLI_L4L3_RM_POST_QA_DETAILS so SAP/middleware does not have to learn a
+// second field vocabulary - same principle as /grn.
 // ---------------------------------------------------------------------------
-const qaCharacteristicSchema = z.object({
-  PARAMETER_CODE: z.string().min(1).max(60),
-  VALUE: z.union([z.string(), z.number()]),
-  UOM: z.string().max(30).optional().nullable()
-});
+
+// (parameter_code, source field, category, data_type, uom)
+const QA_NUMERIC_FIELDS: [string, string, string, string | null][] = [
+  ['CARBON_PCT', 'CARBON_PCT', 'CHEMICAL', '%'],
+  ['CARBON_EQ', 'CARBON_EQ', 'CHEMICAL', null],
+  ['MANGANESE_PCT', 'MANGANESE_PCT', 'CHEMICAL', '%'],
+  ['PHOSPHORUS_PCT', 'PHOSPHORUS_PCT', 'CHEMICAL', '%'],
+  ['SULPHUR_PCT', 'SULPHUR_PCT', 'CHEMICAL', '%'],
+  ['SILICON_PCT', 'SILICON_PCT', 'CHEMICAL', '%'],
+  ['ALUMINIUM_PCT', 'ALUMINIUM_PCT', 'CHEMICAL', '%'],
+  ['NITROGEN_PCT', 'NITROGEN_PCT', 'CHEMICAL', '%'],
+  ['NITROGEN_PPM', 'NITROGEN_PPM', 'CHEMICAL', 'ppm'],
+  ['BORON_PCT', 'BORON_PCT', 'CHEMICAL', '%'],
+  ['COPPER_PCT', 'COPPER_PCT', 'CHEMICAL', '%'],
+  ['CHROMIUM_PCT', 'CHROMIUM_PCT', 'CHEMICAL', '%'],
+  ['NICKEL_PCT', 'NICKEL_PCT', 'CHEMICAL', '%'],
+  ['TIN_PCT', 'TIN_PCT', 'CHEMICAL', '%'],
+  ['YMPA', 'YMPA', 'MECHANICAL', 'MPa'],
+  ['TMPA', 'TMPA', 'MECHANICAL', 'MPa'],
+  ['EL_PCT', 'EL_PCT', 'MECHANICAL', '%'],
+  ['HARDNESS', 'HARDNESS', 'MECHANICAL', null],
+  ['UTS', 'UTS', 'MECHANICAL', 'MPa'],
+  ['YS', 'YS', 'MECHANICAL', 'MPa'],
+  ['CHEM_1', 'CHEM_1', 'CHEMICAL_OTHER', null],
+  ['CHEM_2', 'CHEM_2', 'CHEMICAL_OTHER', null],
+  ['CHEM_3', 'CHEM_3', 'CHEMICAL_OTHER', null],
+  ['CHEM_4', 'CHEM_4', 'CHEMICAL_OTHER', null],
+  ['CHEM_5', 'CHEM_5', 'CHEMICAL_OTHER', null]
+];
+const QA_TEXT_FIELDS: [string, string, string][] = [
+  ['GEN_1', 'GEN_1', 'GENERAL'],
+  ['GEN_2', 'GEN_2', 'GENERAL'],
+  ['GEN_3', 'GEN_3', 'GENERAL'],
+  ['GEN_4', 'GEN_4', 'GENERAL'],
+  ['GEN_5', 'GEN_5', 'GENERAL']
+];
 
 const qaSchema = z.object({
   PLANT_CODE: z.string().min(4).max(4),
   BATCH_NO: z.string().min(2).max(40),
-  RM_SOURCE: z.string().max(40).optional().nullable(),
-  TC_NO: z.string().max(100).optional().nullable(),
+  BATCH_THICK: z.coerce.number().optional().nullable(),
+  BATCH_WIDTH: z.coerce.number().optional().nullable(),
+  BATCH_WEIGHT: z.coerce.number().optional().nullable(),
   HEAT_NO: z.string().max(100).optional().nullable(),
   HR_GRADE: z.string().max(60).optional().nullable(),
-  VENDOR_GRADE: z.string().max(60).optional().nullable(),
   QUALITY_LEVEL: z.string().max(60).optional().nullable(),
-  CHEMICAL_TREATMENT: z.string().max(100).optional().nullable(),
-  SURFACE_CONDITION: z.string().max(120).optional().nullable(),
-  ELONGATION_GL_TYPE: z.string().max(80).optional().nullable(),
-  INNER_DIA_MM: z.coerce.number().optional().nullable(),
-  OUTER_DIA_MM: z.coerce.number().optional().nullable(),
+  SENT_DATE: z.string().optional().nullable(),
+  CHEM_TREATMENT: z.string().max(100).optional().nullable(),
+  SURFACE: z.string().max(120).optional().nullable(),
+  BATCH_LENGTH: z.coerce.number().optional().nullable(),
+  SUPPLIER_TC_NO: z.coerce.string().max(100).optional().nullable(),
   GSM_COATING: z.coerce.number().optional().nullable(),
-  BATCH_LENGTH_M: z.coerce.number().optional().nullable(),
-  REMARKS: z.string().max(1000).optional().nullable(),
+  REMARK: z.string().max(1000).optional().nullable(),
+  EL_GL_TYPE: z.string().max(80).optional().nullable(),
+  INNER_DIA: z.coerce.number().optional().nullable(),
+  OUTER_DIA: z.coerce.number().optional().nullable(),
+  VENDOR_GRADE: z.string().max(60).optional().nullable(),
+  READ_FLAG: z.coerce.string().max(20).optional().nullable(),
+  MODIFIED_BY: z.string().max(80).optional().nullable(),
+  MODIFIED_DATE: z.string().optional().nullable(),
   CREATED_BY: z.string().max(80).optional().nullable(),
-  CREATED_DATE: z.string().optional().nullable(),
-  CHARACTERISTICS: z.array(qaCharacteristicSchema).max(200).optional().default([])
+  CREATED_DATE: z.string().optional().nullable()
 }).passthrough();
 
 integrationRouter.post('/rm-qa', async (req, res) => {
   const parsed = qaSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Invalid SAP RM QA payload', details: parsed.error.flatten() });
   const row = parsed.data;
-  const idempotencyKey = `${row.PLANT_CODE}|${row.BATCH_NO}|${row.TC_NO ?? 'NA'}`;
+  const raw = req.body as Record<string, unknown>;
+  const idempotencyKey = `${row.PLANT_CODE}|${row.BATCH_NO}|${row.SUPPLIER_TC_NO ?? 'NA'}`;
 
   const inbox = await query(`
-    INSERT INTO mes.sap_inbound_message(interface_name,source_system,source_table,idempotency_key,source_row_key,payload,process_status)
-    VALUES('SAP_RM_QA','SAP_S4HANA','IFTLI_L4L3_RM_QA_TC_DETAILS',$1,$2,$3::jsonb,'RECEIVED')
-    ON CONFLICT(interface_name,idempotency_key) DO UPDATE SET payload=EXCLUDED.payload
-    RETURNING message_id`, [idempotencyKey, `${row.PLANT_CODE}|${row.BATCH_NO}`, JSON.stringify(req.body)]);
+    INSERT INTO mes.sap_inbound_message(interface_name,source_system,source_table,idempotency_key,source_row_key,source_read_flag,payload,process_status)
+    VALUES('SAP_RM_QA','SAP_S4HANA','IFTLI_L4L3_RM_POST_QA_DETAILS',$1,$2,$3,$4::jsonb,'RECEIVED')
+    ON CONFLICT(interface_name,idempotency_key) DO UPDATE SET payload=EXCLUDED.payload,source_read_flag=EXCLUDED.source_read_flag
+    RETURNING message_id`, [idempotencyKey, `${row.PLANT_CODE}|${row.BATCH_NO}`, row.READ_FLAG ?? null, JSON.stringify(req.body)]);
   const message = inbox.rows[0];
 
   try {
@@ -170,14 +208,7 @@ integrationRouter.post('/rm-qa', async (req, res) => {
       if (!plant.rowCount) throw new Error(`Plant ${row.PLANT_CODE} is not configured/active`);
       const batch = await client.query(`SELECT batch_id, material_id FROM mes.batch_master WHERE batch_no=$1`, [row.BATCH_NO]);
       if (!batch.rows[0]) throw new Error(`Batch ${row.BATCH_NO} not found - GRN must be posted before QA`);
-      let supplierId: string | null = null;
-      if (row.RM_SOURCE) {
-        const supplier = await client.query(`
-          SELECT s.supplier_id FROM mes.supplier_master s
-          LEFT JOIN mes.supplier_external_key k ON k.supplier_id=s.supplier_id AND k.source_system='SAP'
-          WHERE s.is_active=true AND (s.sap_vendor_no=$1 OR k.external_key=$1) LIMIT 1`, [row.RM_SOURCE]);
-        supplierId = supplier.rows[0]?.supplier_id ?? null;
-      }
+      const coil = await client.query(`SELECT grn_coil_id, supplier_id FROM mes.goods_receipt_coil WHERE batch_no=$1 LIMIT 1`, [row.BATCH_NO]);
 
       const tc = await client.query(`
         INSERT INTO mes.rm_supplier_tc(
@@ -192,28 +223,43 @@ integrationRouter.post('/rm-qa', async (req, res) => {
           gsm_coating=EXCLUDED.gsm_coating,batch_length_m=EXCLUDED.batch_length_m,remarks=EXCLUDED.remarks,sent_at=EXCLUDED.sent_at,
           source_message_id=EXCLUDED.source_message_id,source_modified_by=EXCLUDED.source_created_by,source_modified_at=now(),updated_at=now()
         RETURNING supplier_tc_id`, [
-        batch.rows[0].batch_id, row.PLANT_CODE, batch.rows[0].material_id, supplierId, row.BATCH_NO, row.TC_NO ?? null,
+        batch.rows[0].batch_id, row.PLANT_CODE, batch.rows[0].material_id, coil.rows[0]?.supplier_id ?? null, row.BATCH_NO, row.SUPPLIER_TC_NO ?? null,
         row.HEAT_NO ?? null, row.HR_GRADE ?? null, row.VENDOR_GRADE ?? null, row.QUALITY_LEVEL ?? null,
-        row.CHEMICAL_TREATMENT ?? null, row.SURFACE_CONDITION ?? null, row.ELONGATION_GL_TYPE ?? null,
-        row.INNER_DIA_MM ?? null, row.OUTER_DIA_MM ?? null, row.GSM_COATING ?? null, row.BATCH_LENGTH_M ?? null, row.REMARKS ?? null,
-        row.CREATED_DATE ? new Date(row.CREATED_DATE) : new Date(), message.message_id, row.CREATED_BY ?? null,
+        row.CHEM_TREATMENT ?? null, row.SURFACE ?? null, row.EL_GL_TYPE ?? null,
+        row.INNER_DIA ?? null, row.OUTER_DIA ?? null, row.GSM_COATING ?? null, row.BATCH_LENGTH ?? null, row.REMARK ?? null,
+        row.SENT_DATE ? new Date(row.SENT_DATE) : new Date(), message.message_id, row.CREATED_BY ?? null,
         row.CREATED_DATE ? new Date(row.CREATED_DATE) : new Date()
       ]);
       const supplierTcId = tc.rows[0].supplier_tc_id;
+      if (coil.rows[0]?.grn_coil_id) {
+        await client.query(`UPDATE mes.rm_quality_inspection SET supplier_tc_id=$1 WHERE grn_coil_id=$2 AND supplier_tc_id IS NULL`, [supplierTcId, coil.rows[0].grn_coil_id]);
+      }
 
       const skipped: string[] = [];
       let stored = 0;
-      for (const c of row.CHARACTERISTICS) {
-        const param = await client.query(`SELECT parameter_id, data_type FROM mes.quality_parameter_master WHERE parameter_code=$1 AND is_active=true`, [c.PARAMETER_CODE]);
-        if (!param.rows[0]) { skipped.push(c.PARAMETER_CODE); continue; }
-        const isNumeric = param.rows[0].data_type === 'NUMERIC' && !Number.isNaN(Number(c.VALUE));
+      async function upsertResult(parameterCode: string, sourceField: string, numericValue: number | null, textValue: string | null, uom: string | null, rawValue: unknown) {
+        const param = await client.query(`SELECT parameter_id FROM mes.quality_parameter_master WHERE parameter_code=$1 AND is_active=true`, [parameterCode]);
+        if (!param.rows[0]) { skipped.push(parameterCode); return; }
         await client.query(`
           INSERT INTO mes.rm_supplier_tc_result(supplier_tc_id,parameter_id,numeric_value,text_value,uom,source_field_name,source_raw_value)
           VALUES($1,$2,$3,$4,$5,$6,$7)
           ON CONFLICT(supplier_tc_id,parameter_id,source_field_name) DO UPDATE SET
             numeric_value=EXCLUDED.numeric_value,text_value=EXCLUDED.text_value,uom=EXCLUDED.uom,source_raw_value=EXCLUDED.source_raw_value`,
-          [supplierTcId, param.rows[0].parameter_id, isNumeric ? Number(c.VALUE) : null, isNumeric ? null : String(c.VALUE), c.UOM ?? null, c.PARAMETER_CODE, String(c.VALUE)]);
+          [supplierTcId, param.rows[0].parameter_id, numericValue, textValue, uom, sourceField, rawValue == null ? null : String(rawValue)]);
         stored++;
+      }
+
+      for (const [code, field, , uom] of QA_NUMERIC_FIELDS) {
+        const v = raw[field];
+        if (v === undefined || v === null || v === '') continue;
+        const n = Number(v);
+        if (Number.isNaN(n)) continue;
+        await upsertResult(code, field, n, null, uom, v);
+      }
+      for (const [code, field] of QA_TEXT_FIELDS) {
+        const v = raw[field];
+        if (v === undefined || v === null || v === '') continue;
+        await upsertResult(code, field, null, String(v), null, v);
       }
 
       await client.query(`UPDATE mes.sap_inbound_message SET process_status='PROCESSED',processed_at=now() WHERE message_id=$1`, [message.message_id]);
