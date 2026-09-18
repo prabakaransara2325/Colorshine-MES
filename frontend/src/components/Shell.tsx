@@ -120,8 +120,9 @@ export default function Shell(){
     if(currentScreen.moduleCode!=='MES'&&currentScreen.moduleCode!=='ADM')setSelectedModule(currentScreen.moduleCode);
   },[currentScreen]);
 
-  // Double-tap Alt toggles back to the previously active working screen (SAP/IDE-style
-  // "switch to last screen"). Tracks the working-screen tab history, not raw routes.
+  // Ctrl+Shift (held together, no other key) toggles back to the previously
+  // active working screen (SAP/IDE-style "switch to last screen"). Tracks the
+  // working-screen tab history, not raw routes.
   const previousWorkingScreenCode=useRef<string|null>(null);
   const currentWorkingScreenCode=useRef<string|null>(null);
   useEffect(()=>{
@@ -133,24 +134,19 @@ export default function Shell(){
   },[currentScreen.screenCode]);
 
   useEffect(()=>{
-    let lastAltTapAt=0;
-    let altHeldAlone=true;
-    const DOUBLE_TAP_MS=400;
-    function onKeyDown(e:KeyboardEvent){if(e.key!=='Alt')altHeldAlone=false}
-    function onKeyUp(e:KeyboardEvent){
-      if(e.key!=='Alt')return;
-      const wasAlone=altHeldAlone;
-      altHeldAlone=true;
-      if(!wasAlone)return;
-      const now=Date.now();
-      if(now-lastAltTapAt<DOUBLE_TAP_MS){
-        lastAltTapAt=0;
+    let comboFired=false;
+    let otherKeyInvolved=false;
+    function onKeyDown(e:KeyboardEvent){
+      if(e.key!=='Control'&&e.key!=='Shift'){otherKeyInvolved=true;return}
+      if(e.ctrlKey&&e.shiftKey&&!comboFired&&!otherKeyInvolved){
+        comboFired=true;
         const code=previousWorkingScreenCode.current;
         const row=code?workingScreens.find(x=>x.screen_code===code):undefined;
         if(row){e.preventDefault();void openScreen(row.route_path)}
-      }else{
-        lastAltTapAt=now;
       }
+    }
+    function onKeyUp(e:KeyboardEvent){
+      if(!e.ctrlKey&&!e.shiftKey){comboFired=false;otherKeyInvolved=false}
     }
     window.addEventListener('keydown',onKeyDown);
     window.addEventListener('keyup',onKeyUp);
@@ -446,7 +442,7 @@ export default function Shell(){
       {workingMessage&&<div className="working-toast" role="status">{workingMessage}</div>}
 
       <section className="content full-content"><Outlet/></section>
-      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.8 <i/> Steel That Delivers Trust</span></footer>
+      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.9 <i/> Steel That Delivers Trust</span></footer>
     </main>
 
     {launcherOpen&&<div className="module-launcher-overlay" onClick={()=>setLauncherOpen(false)}>
