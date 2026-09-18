@@ -17,7 +17,7 @@ function display(key:string,value:any){
   if(key==='stock_generated_date'||key==='mother_stock_grn_date')return d(value);
   if(key==='thickness_mm'||key==='so_thickness_mm')return fixed(value,3);
   if(key==='width_mm'||key==='so_width_mm')return fixed(value,0);
-  if(key==='batch_qty_mt'||key==='so_min_wt_mt'||key==='so_max_wt_mt')return fixed(value,3);
+  if(key==='batch_qty_mt'||key==='so_min_wt_mt'||key==='so_max_wt_mt'||key==='length_value')return fixed(value,3);
   if(chemistryKeys.has(key))return fixed(value,3);
   if(key==='stock_status')return String(value).replaceAll('_',' ');
   return value;
@@ -125,7 +125,7 @@ export default function PlantStockReport(){
         <table className="inventory-master-report-table plant-stock-report-table">
           <thead><tr>{layout.visibleColumns.map(([label])=><th key={label}>{label}</th>)}</tr></thead>
           <tbody>{rows.map(r=><tr key={r.inventory_id} className={`stage-${String(r.stock_stage||'').toLowerCase()}`}>
-            {layout.visibleColumns.map(([label,key])=><td key={key} title={String(display(String(key),r[key])??'')}>{display(String(key),r[key])}</td>)}
+            {layout.visibleColumns.map(([label,key])=><td key={key}>{display(String(key),r[key])}</td>)}
           </tr>)}</tbody>
         </table>
         {!loading&&!rows.length&&<Empty text="No plant stock found for the selected filters"/>}

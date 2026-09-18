@@ -168,7 +168,7 @@ export default function Inventory(){
         <table className="inventory-master-report-table rm-inventory-table rm-layout-table">
           <thead><tr>{layout.visibleColumns.map(([label,key])=><th key={String(key)}>{label}</th>)}</tr></thead>
           <tbody>{rows.map(r=><tr key={r.inventory_id} className="stage-rm">
-            {layout.visibleColumns.map(([,key])=><td key={String(key)} title={String(display(String(key),r[key])??'')}>{display(String(key),r[key])}</td>)}
+            {layout.visibleColumns.map(([,key])=><td key={String(key)}>{display(String(key),r[key])}</td>)}
           </tr>)}</tbody>
         </table>
         {!loading&&!rows.length&&<Empty text="No RM inventory found for the selected filters"/>}

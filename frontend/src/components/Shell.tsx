@@ -446,7 +446,7 @@ export default function Shell(){
       {workingMessage&&<div className="working-toast" role="status">{workingMessage}</div>}
 
       <section className="content full-content"><Outlet/></section>
-      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.7 <i/> Steel That Delivers Trust</span></footer>
+      <footer className="app-footer"><span>© 2026 Colorshine Group. All rights reserved.</span><span>MES V2 0.11.8 <i/> Steel That Delivers Trust</span></footer>
     </main>
 
     {launcherOpen&&<div className="module-launcher-overlay" onClick={()=>setLauncherOpen(false)}>
