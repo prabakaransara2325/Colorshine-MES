@@ -11,8 +11,9 @@ function valueOf(p:any){
   const v=p.numeric_value??p.text_value??p.source_raw_value;
   if(v===null||v===undefined||v==='') return '—';
   const n=Number(v);
-  const shown=p.parameter_category==='CHEMICAL'&&Number.isFinite(n)?n.toFixed(3):v;
-  return `${shown}${p.uom||p.default_uom?` ${p.uom||p.default_uom}`:''}`;
+  const uom=p.uom||p.default_uom;
+  const shown=Number.isFinite(n)&&p.numeric_value!=null?n.toFixed(uom==='%'?2:3):v;
+  return `${shown}${uom?` ${uom}`:''}`;
 }
 
 export default function BatchAnalysisDrawer({detail,onClose,mode}:Props){
