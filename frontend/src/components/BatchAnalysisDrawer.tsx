@@ -67,7 +67,7 @@ export default function BatchAnalysisDrawer({detail,onClose,mode,onReversed}:Pro
 
       <div className="drawer-actions">
         <button className="secondary-btn" onClick={download}><Download size={16}/> Download Batch Analysis</button>
-        {showReversals&&<button className="secondary-btn" disabled={busy||!['ACCEPT','CONDITIONAL_ACCEPT','REJECT'].includes(detail.current_ud)} onClick={reverseQc} title="Reverse the current QC Usage Decision"><RotateCcw size={16}/> Reverse QC</button>}
+        {showReversals&&<button className="secondary-btn" disabled={busy||!['ACCEPT','CONDITIONAL_ACCEPT'].includes(detail.current_ud)} onClick={reverseQc} title="Reverse the current QC Usage Decision (only while stock status is Available)"><RotateCcw size={16}/> Reverse QC</button>}
         {showReversals&&<button className="secondary-btn" disabled={busy||['ACCEPT','CONDITIONAL_ACCEPT','REJECT'].includes(detail.current_ud)} onClick={reverseGrn} title="Reverse this GRN receipt (QC must be reversed first)"><RotateCcw size={16}/> Reverse GRN</button>}
       </div>
       {msg&&<div className="inline-message">{msg}</div>}

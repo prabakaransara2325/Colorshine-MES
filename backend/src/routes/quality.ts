@@ -123,10 +123,16 @@ qualityRouter.post('/:inspectionId/reverse', async (req, res) => {
       SELECT * FROM mes.rm_usage_decision WHERE batch_id=$1 AND is_current=true ORDER BY decided_at DESC LIMIT 1 FOR UPDATE`, [batch_id]);
     if (!udResult.rows[0]) { const e:any=new Error('No active Usage Decision to reverse for this batch'); e.status=409; throw e; }
     const decision = udResult.rows[0];
+    // QC Reversal is only allowed while stock is in Available status (ACCEPT/CONDITIONAL_ACCEPT).
+    // REJECT (Blocked) and other statuses (allocated/consumed) are out of scope for now.
+    if (!['ACCEPT','CONDITIONAL_ACCEPT'].includes(decision.decision)) {
+      const e:any=new Error(`QC Reversal is only allowed when stock status is Available. This batch's current decision is ${decision.decision}.`);
+      e.status=409; throw e;
+    }
 
     let reversedQty = 0;
     let lastMovementId: string | null = null;
-    if (['ACCEPT','CONDITIONAL_ACCEPT','REJECT'].includes(decision.decision)) {
+    if (['ACCEPT','CONDITIONAL_ACCEPT'].includes(decision.decision)) {
       const movs = await client.query(`
         SELECT * FROM mes.rm_inventory_movement
         WHERE reference_type='RM_UD' AND reference_id=$1
