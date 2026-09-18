@@ -1,6 +1,0 @@
-COLORSHINE MES V2 FRONTEND v0.8.1
-- Module launcher footprint reduced to approximately half the previous area.
-- Pattern/navigation flow retained.
-- Launcher centered horizontally for better use of the full-screen workspace.
-- Header copy updated for centrally maintained screen numbers.
-No backend/database change is required for this UI-only patch.

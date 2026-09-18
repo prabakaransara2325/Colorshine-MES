@@ -1,6 +1,0 @@
-COLORSHINE MES V2 FRONTEND v0.6.4
-
-Change: Removed the decorative rolling coil animation completely from the login page.
-The static manufacturing process image and the wording "Raw HR Coil → Prepainted Coils → Customer" remain.
-
-No backend or database changes are required.
