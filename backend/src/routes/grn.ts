@@ -185,7 +185,7 @@ grnRouter.post('/:grnCoilId/reverse', async (req, res) => {
       [batch_id, totalHeld, plant_code, storage_location, req.params.grnCoilId, coil.rows[0].batch_no, req.user!.username, parsed.data.reason]);
 
     await client.query(`DELETE FROM mes.rm_inventory_balance WHERE batch_id=$1`, [batch_id]);
-    await client.query(`UPDATE mes.batch_master SET lifecycle_status='CLOSED' WHERE batch_id=$1`, [batch_id]);
+    await client.query(`UPDATE mes.batch_master SET lifecycle_status='CLOSED',quality_status='NOT_APPLICABLE' WHERE batch_id=$1`, [batch_id]);
     await client.query(`UPDATE mes.rm_quality_inspection SET inspection_status='CANCELLED' WHERE batch_id=$1 AND inspection_status='PENDING'`, [batch_id]);
 
     const log = await client.query(`
