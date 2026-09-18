@@ -87,11 +87,15 @@ integrationRouter.post('/grn', async (req, res) => {
         VALUES($1,$2,$3,'R',0,'GRN',$4,'PENDING_UD','ACTIVE')
         ON CONFLICT(material_id,batch_no) DO UPDATE SET original_weight_mt=COALESCE(mes.batch_master.original_weight_mt,EXCLUDED.original_weight_mt)
         RETURNING batch_id`, [row.BATCH_NO, material.rows[0].material_id, mother, row.BATCH_WEIGHT]);
+      const grnDate = row.CREATED_DATE ? new Date(row.CREATED_DATE) : new Date();
       const grn = await client.query(`
-        INSERT INTO mes.goods_receipt(plant_code,sap_grn_no,sap_material_doc_year,received_at,status,source_message_id)
-        VALUES($1,$2,$3,$4,'POSTED',$5)
-        ON CONFLICT(plant_code,sap_grn_no,sap_material_doc_year) DO UPDATE SET source_message_id=COALESCE(mes.goods_receipt.source_message_id,EXCLUDED.source_message_id)
-        RETURNING grn_id`, [row.PLANT_CODE,row.GRN,docYear,row.CREATED_DATE ? new Date(row.CREATED_DATE) : new Date(),message.message_id]);
+        INSERT INTO mes.goods_receipt(plant_code,sap_grn_no,sap_material_doc_year,posting_date,document_date,received_at,status,source_message_id)
+        VALUES($1,$2,$3,$4::date,$5::date,$6::timestamptz,'POSTED',$7)
+        ON CONFLICT(plant_code,sap_grn_no,sap_material_doc_year) DO UPDATE SET
+          posting_date=COALESCE(mes.goods_receipt.posting_date,EXCLUDED.posting_date),
+          document_date=COALESCE(mes.goods_receipt.document_date,EXCLUDED.document_date),
+          source_message_id=COALESCE(mes.goods_receipt.source_message_id,EXCLUDED.source_message_id)
+        RETURNING grn_id`, [row.PLANT_CODE,row.GRN,docYear,grnDate,grnDate,grnDate,message.message_id]);
       const coil = await client.query(`
         INSERT INTO mes.goods_receipt_coil(
           grn_id,source_row_key,plant_code,storage_location,material_id,batch_id,supplier_id,batch_no,vendor_batch_no,

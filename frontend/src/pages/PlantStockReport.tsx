@@ -5,7 +5,7 @@ import {Empty,PageHeader} from '../components/UI';
 import {downloadInventoryMasterReport,inventoryMasterReportColumns} from '../lib/export';
 
 const emptyFilters={materialCode:'',storageLocation:'',category:'',thickness:'',heatNo:'',steelGrade:'',qualityGrade:''};
-const chemistryKeys=new Set(['carbon','manganese','sulphur','phosphorus','silicon','aluminium','carbon_equivalent','nitrogen','copper','molybdenum','chromium','nickel']);
+const chemistryKeys=new Set(['carbon','manganese','sulphur','phosphorus','silicon','aluminium','carbon_equivalent','nitrogen','copper','chromium','nickel']);
 
 function d(v:any){if(!v)return '';const s=String(v);if(/^\d{4}-\d{2}-\d{2}/.test(s)){const [y,m,dd]=s.slice(0,10).split('-');return `${dd}-${m}-${y}`}return s}
 function fixed(v:any,decimals:number){if(v===null||v===undefined||v==='')return '';const x=Number(v);return Number.isFinite(x)?x.toFixed(decimals):String(v)}

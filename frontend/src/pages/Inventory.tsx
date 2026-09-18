@@ -20,7 +20,7 @@ function d(v:any){
 
 const chemistryKeys=new Set([
   'carbon','manganese','sulphur','phosphorus','silicon','aluminium',
-  'carbon_equivalent','nitrogen','copper','molybdenum','chromium','nickel'
+  'carbon_equivalent','nitrogen','copper','chromium','nickel'
 ]);
 
 function fixed(v:any,decimals:number){
