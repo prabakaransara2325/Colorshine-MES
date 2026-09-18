@@ -117,6 +117,116 @@ integrationRouter.post('/grn', async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// v0.11.2 SAP RM QA / Supplier TC inbound (second ERP touch on RM GRN data,
+// posted once QA/TC results are available for a batch already received via
+// POST /grn). Unknown characteristic codes are skipped, not fatal, since
+// quality_parameter_master is populated independently.
+// ---------------------------------------------------------------------------
+const qaCharacteristicSchema = z.object({
+  PARAMETER_CODE: z.string().min(1).max(60),
+  VALUE: z.union([z.string(), z.number()]),
+  UOM: z.string().max(30).optional().nullable()
+});
+
+const qaSchema = z.object({
+  PLANT_CODE: z.string().min(4).max(4),
+  BATCH_NO: z.string().min(2).max(40),
+  RM_SOURCE: z.string().max(40).optional().nullable(),
+  TC_NO: z.string().max(100).optional().nullable(),
+  HEAT_NO: z.string().max(100).optional().nullable(),
+  HR_GRADE: z.string().max(60).optional().nullable(),
+  VENDOR_GRADE: z.string().max(60).optional().nullable(),
+  QUALITY_LEVEL: z.string().max(60).optional().nullable(),
+  CHEMICAL_TREATMENT: z.string().max(100).optional().nullable(),
+  SURFACE_CONDITION: z.string().max(120).optional().nullable(),
+  ELONGATION_GL_TYPE: z.string().max(80).optional().nullable(),
+  INNER_DIA_MM: z.coerce.number().optional().nullable(),
+  OUTER_DIA_MM: z.coerce.number().optional().nullable(),
+  GSM_COATING: z.coerce.number().optional().nullable(),
+  BATCH_LENGTH_M: z.coerce.number().optional().nullable(),
+  REMARKS: z.string().max(1000).optional().nullable(),
+  CREATED_BY: z.string().max(80).optional().nullable(),
+  CREATED_DATE: z.string().optional().nullable(),
+  CHARACTERISTICS: z.array(qaCharacteristicSchema).max(200).optional().default([])
+}).passthrough();
+
+integrationRouter.post('/rm-qa', async (req, res) => {
+  const parsed = qaSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: 'Invalid SAP RM QA payload', details: parsed.error.flatten() });
+  const row = parsed.data;
+  const idempotencyKey = `${row.PLANT_CODE}|${row.BATCH_NO}|${row.TC_NO ?? 'NA'}`;
+
+  const inbox = await query(`
+    INSERT INTO mes.sap_inbound_message(interface_name,source_system,source_table,idempotency_key,source_row_key,payload,process_status)
+    VALUES('SAP_RM_QA','SAP_S4HANA','IFTLI_L4L3_RM_QA_TC_DETAILS',$1,$2,$3::jsonb,'RECEIVED')
+    ON CONFLICT(interface_name,idempotency_key) DO UPDATE SET payload=EXCLUDED.payload
+    RETURNING message_id`, [idempotencyKey, `${row.PLANT_CODE}|${row.BATCH_NO}`, JSON.stringify(req.body)]);
+  const message = inbox.rows[0];
+
+  try {
+    const result = await tx(async (client) => {
+      await client.query(`UPDATE mes.sap_inbound_message SET process_status='PROCESSING',processing_started_at=now(),last_error_code=NULL,last_error_message=NULL WHERE message_id=$1`, [message.message_id]);
+      const plant = await client.query(`SELECT 1 FROM mes.plant_master WHERE plant_code=$1 AND is_active=true`, [row.PLANT_CODE]);
+      if (!plant.rowCount) throw new Error(`Plant ${row.PLANT_CODE} is not configured/active`);
+      const batch = await client.query(`SELECT batch_id, material_id FROM mes.batch_master WHERE batch_no=$1`, [row.BATCH_NO]);
+      if (!batch.rows[0]) throw new Error(`Batch ${row.BATCH_NO} not found - GRN must be posted before QA`);
+      let supplierId: string | null = null;
+      if (row.RM_SOURCE) {
+        const supplier = await client.query(`
+          SELECT s.supplier_id FROM mes.supplier_master s
+          LEFT JOIN mes.supplier_external_key k ON k.supplier_id=s.supplier_id AND k.source_system='SAP'
+          WHERE s.is_active=true AND (s.sap_vendor_no=$1 OR k.external_key=$1) LIMIT 1`, [row.RM_SOURCE]);
+        supplierId = supplier.rows[0]?.supplier_id ?? null;
+      }
+
+      const tc = await client.query(`
+        INSERT INTO mes.rm_supplier_tc(
+          batch_id,plant_code,material_id,supplier_id,batch_no,supplier_tc_no,heat_no,hr_grade,vendor_grade,quality_level,
+          chemical_treatment,surface_condition,elongation_gl_type,inner_dia_mm,outer_dia_mm,gsm_coating,batch_length_m,remarks,
+          sent_at,source_message_id,source_created_by,source_created_at)
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+        ON CONFLICT(batch_id) DO UPDATE SET
+          supplier_tc_no=EXCLUDED.supplier_tc_no,heat_no=EXCLUDED.heat_no,hr_grade=EXCLUDED.hr_grade,vendor_grade=EXCLUDED.vendor_grade,
+          quality_level=EXCLUDED.quality_level,chemical_treatment=EXCLUDED.chemical_treatment,surface_condition=EXCLUDED.surface_condition,
+          elongation_gl_type=EXCLUDED.elongation_gl_type,inner_dia_mm=EXCLUDED.inner_dia_mm,outer_dia_mm=EXCLUDED.outer_dia_mm,
+          gsm_coating=EXCLUDED.gsm_coating,batch_length_m=EXCLUDED.batch_length_m,remarks=EXCLUDED.remarks,sent_at=EXCLUDED.sent_at,
+          source_message_id=EXCLUDED.source_message_id,source_modified_by=EXCLUDED.source_created_by,source_modified_at=now(),updated_at=now()
+        RETURNING supplier_tc_id`, [
+        batch.rows[0].batch_id, row.PLANT_CODE, batch.rows[0].material_id, supplierId, row.BATCH_NO, row.TC_NO ?? null,
+        row.HEAT_NO ?? null, row.HR_GRADE ?? null, row.VENDOR_GRADE ?? null, row.QUALITY_LEVEL ?? null,
+        row.CHEMICAL_TREATMENT ?? null, row.SURFACE_CONDITION ?? null, row.ELONGATION_GL_TYPE ?? null,
+        row.INNER_DIA_MM ?? null, row.OUTER_DIA_MM ?? null, row.GSM_COATING ?? null, row.BATCH_LENGTH_M ?? null, row.REMARKS ?? null,
+        row.CREATED_DATE ? new Date(row.CREATED_DATE) : new Date(), message.message_id, row.CREATED_BY ?? null,
+        row.CREATED_DATE ? new Date(row.CREATED_DATE) : new Date()
+      ]);
+      const supplierTcId = tc.rows[0].supplier_tc_id;
+
+      const skipped: string[] = [];
+      let stored = 0;
+      for (const c of row.CHARACTERISTICS) {
+        const param = await client.query(`SELECT parameter_id, data_type FROM mes.quality_parameter_master WHERE parameter_code=$1 AND is_active=true`, [c.PARAMETER_CODE]);
+        if (!param.rows[0]) { skipped.push(c.PARAMETER_CODE); continue; }
+        const isNumeric = param.rows[0].data_type === 'NUMERIC' && !Number.isNaN(Number(c.VALUE));
+        await client.query(`
+          INSERT INTO mes.rm_supplier_tc_result(supplier_tc_id,parameter_id,numeric_value,text_value,uom,source_field_name,source_raw_value)
+          VALUES($1,$2,$3,$4,$5,$6,$7)
+          ON CONFLICT(supplier_tc_id,parameter_id,source_field_name) DO UPDATE SET
+            numeric_value=EXCLUDED.numeric_value,text_value=EXCLUDED.text_value,uom=EXCLUDED.uom,source_raw_value=EXCLUDED.source_raw_value`,
+          [supplierTcId, param.rows[0].parameter_id, isNumeric ? Number(c.VALUE) : null, isNumeric ? null : String(c.VALUE), c.UOM ?? null, c.PARAMETER_CODE, String(c.VALUE)]);
+        stored++;
+      }
+
+      await client.query(`UPDATE mes.sap_inbound_message SET process_status='PROCESSED',processed_at=now() WHERE message_id=$1`, [message.message_id]);
+      return { batchId: batch.rows[0].batch_id, supplierTcId, characteristicsStored: stored, characteristicsSkipped: skipped };
+    });
+    res.status(201).json({ messageId: message.message_id, ...result });
+  } catch (e: any) {
+    await query(`UPDATE mes.sap_inbound_message SET process_status='FAILED',retry_count=retry_count+1,last_error_code='RM_QA_PROCESSING',last_error_message=$2 WHERE message_id=$1`, [message.message_id, String(e.message).slice(0, 2000)]);
+    return res.status(422).json({ error: e.message, messageId: message.message_id });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // v0.10.5 SAP Sales Order inbound landing
 // Raw SAP data is accepted first. Local master gaps are evaluated later by
 // vw_sap_sales_order_monitor and never cause the inbound row to be discarded.

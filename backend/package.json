@@ -1,6 +1,6 @@
 {
   "name": "colorshine-mes-v2-backend",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
@@ -16,7 +16,8 @@
     "import:sap-so-sample": "node scripts/import-sap-so-sample-v0105.cjs",
     "repair:v0107-admin-access": "node scripts/apply-v0107-admin-access-repair.cjs",
     "migrate:v0110": "node scripts/apply-v0110-tdc-template-workflow.cjs",
-    "migrate:v0111": "node scripts/apply-v0111-tdc-source-seed.cjs"
+    "migrate:v0111": "node scripts/apply-v0111-tdc-source-seed.cjs",
+    "migrate:v0112": "node scripts/apply-v0112-rm-qa-inbound.cjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
