@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {ArrowRight} from 'lucide-react';
 import {api,plantQueryParam,selectedPlant,subscribePlantChange} from '../lib/api';
-import {Empty,PageHeader,num} from '../components/UI';
+import {Empty,PageHeader,num,plain} from '../components/UI';
 import {moduleByCode} from '../navigation';
 
 export default function RMStoresDashboard(){
@@ -50,14 +50,14 @@ export default function RMStoresDashboard(){
       </div>
       <div className="responsive-table compact-table">
         <table>
-          <thead><tr><th>Batch</th><th>Material</th><th>Storage</th><th>Thickness</th><th>Width</th><th>Qty</th><th>Supplier</th><th>QA Grade</th><th>Stock Date</th><th>Age</th></tr></thead>
+          <thead><tr><th>Batch</th><th>Material</th><th>Storage</th><th>Thickness (mm)</th><th>Width (mm)</th><th>Qty</th><th>Supplier</th><th>QA Grade</th><th>Stock Date</th><th>Age</th></tr></thead>
           <tbody>
             {(data.recent||[]).map((r:any)=><tr key={r.inventory_id}>
               <td><b>{r.batch_no}</b></td>
               <td>{r.material_code}</td>
               <td>{r.storage_location||'—'}</td>
-              <td>{r.thickness_mm?num(r.thickness_mm,3):'—'} mm</td>
-              <td>{r.width_mm?num(r.width_mm,0):'—'} mm</td>
+              <td>{r.thickness_mm?plain(r.thickness_mm,3):'—'}</td>
+              <td>{r.width_mm?plain(r.width_mm,0):'—'}</td>
               <td>{num(r.batch_qty_mt)} MT</td>
               <td>{r.rm_supplier||'—'}</td>
               <td>{r.qa_grade||'PENDING_QA'}</td>

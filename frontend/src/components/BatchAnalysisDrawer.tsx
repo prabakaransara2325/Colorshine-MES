@@ -1,5 +1,5 @@
 import {Download,FlaskConical,Layers3,ShieldCheck,X} from 'lucide-react';
-import {Status,num} from './UI';
+import {Status,num,plain} from './UI';
 import {detailToAnalysisRow,downloadGrnAnalysis,downloadInventoryAnalysis} from '../lib/export';
 
 type Props={detail:any;onClose:()=>void;mode:'grn'|'inventory'};
@@ -51,8 +51,8 @@ export default function BatchAnalysisDrawer({detail,onClose,mode}:Props){
           <span>Supplier TC<b>{detail.supplier_tc_no||'—'}</b></span>
           <span>Quality Level<b>{detail.quality_level||'—'}</b></span>
           <span>Material<b>{detail.sap_material_code||'—'}</b></span>
-          <span>Thickness<b>{detail.batch_thickness_mm?`${num(detail.batch_thickness_mm,3)} mm`:'—'}</b></span>
-          <span>Width<b>{detail.batch_width_mm?`${num(detail.batch_width_mm,0)} mm`:'—'}</b></span>
+          <span>Thickness (mm)<b>{detail.batch_thickness_mm?plain(detail.batch_thickness_mm,3):'—'}</b></span>
+          <span>Width (mm)<b>{detail.batch_width_mm?plain(detail.batch_width_mm,0):'—'}</b></span>
           <span>Received Weight<b>{detail.batch_weight_mt?`${num(detail.batch_weight_mt)} MT`:'—'}</b></span>
           <span>Quality<b><Status value={detail.quality_status}/></b></span>
           {mode==='inventory'&&<><span>On Hand<b>{num(detail.on_hand_weight_mt)} MT</b></span><span>Available<b>{num(detail.available_weight_mt)} MT</b></span><span>Quality Hold<b>{num(detail.quality_hold_weight_mt)} MT</b></span><span>Blocked<b>{num(detail.blocked_weight_mt)} MT</b></span></>}

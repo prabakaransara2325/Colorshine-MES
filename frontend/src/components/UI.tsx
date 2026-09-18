@@ -26,3 +26,4 @@ export function Kpi({label,value,unit,icon,caption,variant}:{label:string,value:
 
 export function Empty({text='No records found'}:{text?:string}){return <div className="empty">{text}</div>}
 export const num=(v:any,d=3)=>Number(v||0).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+export const plain=(v:any,d=3)=>Number(v||0).toFixed(d);
