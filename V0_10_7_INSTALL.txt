@@ -1,0 +1,30 @@
+COLORSHINE MES V2 v0.10.7 - ADMIN ACCESS / LOGIN REPAIR
+
+Reason for this patch
+---------------------
+An existing ADMIN account can carry the legacy ADMIN role but still have no row
+in the newer company/plant access-group model. Login then shows:
+"No active company/plant access group is assigned to this user".
+
+Install
+-------
+1. Stop backend and frontend.
+2. Extract this full package over:
+   D:\Colorshine\Color_MES\ColorshineMes
+3. Run once:
+   backend\REPAIR_ADMIN_ACCESS_V0107.bat
+4. Start backend and frontend.
+5. Press Ctrl+F5 in Chrome.
+6. Sign in with ADMIN again.
+7. Open Module 7 -> Masters -> Screen 7000.
+
+What v0.10.7 fixes
+------------------
+- Existing legacy ADMIN users are mapped to SYSTEM_ADMIN.
+- SYSTEM_ADMIN is scoped to Companies 1000/2000 and Plants 1000/2000.
+- Login also self-repairs this exact legacy ADMIN gap if it is encountered again.
+- New/updated ADMIN bootstrap users receive SYSTEM_ADMIN automatically.
+- Normal business users are NOT auto-promoted; they still require explicit access groups.
+- Footer/package versions synchronized to 0.10.7.
+
+No master data is deleted or recreated by this repair.

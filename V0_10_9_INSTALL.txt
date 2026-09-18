@@ -1,0 +1,12 @@
+COLORSHINE MES V2 v0.10.9 - CONTENT-FIRST COMPACT UI
+
+NO DATABASE MIGRATION REQUIRED.
+
+1. Stop frontend and backend.
+2. Back up D:\Colorshine\Color_MES\ColorshineMes
+3. Extract/copy this package over the existing ColorshineMes folder.
+4. Start backend and frontend.
+5. Chrome: Ctrl+F5.
+6. Footer must show MES V2 0.10.9.
+
+This release does not delete or recreate any master/business data.

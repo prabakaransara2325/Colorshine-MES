@@ -1,0 +1,15 @@
+COLORSHINE MES V2 v0.9.6 - FINAL RM OPENING BACKEND LOAD
+
+1. Replace project files, preserving backend/.env and frontend/.env.
+2. Backend path:
+   D:\Colorshine\Color_MES\ColorshineMes\backend
+3. Run:
+   npm install
+4. Double-click:
+   IMPORT_RM_OPENING_AND_QA.bat
+   OR run:
+   npm run import:rm-opening
+5. If import succeeds, restart backend/frontend.
+6. Ctrl+F5 browser.
+7. Verify Screen 1101 and Screen 1102.
+8. Optional DB verification: run backend/sql/26_verify_rm_opening_import.sql in pgAdmin.

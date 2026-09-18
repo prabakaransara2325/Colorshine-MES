@@ -1,0 +1,38 @@
+COLORSHINE MES V2.0.8 - FULL SCREEN MODULE / SCREEN NUMBER NAVIGATION
+
+WHAT CHANGED
+- Permanent left sidebar removed after login. Application content now uses full screen width.
+- New Modules button in the header opens the 6 business modules.
+- Select a module to display the screens registered under that module.
+- Every screen has a permanent 4-digit Screen No.
+- Header Screen No box supports direct navigation. Type the number and press Enter/arrow.
+- Direct URL is also supported: /screen/1101, /screen/4101, etc.
+- Module dashboard foundation added for all 6 modules.
+- Administration remains separate from the 6 business modules.
+- Existing user access, GRN, RM Inventory, Quality, TDC, Reports and Master Data are retained.
+
+CURRENT SCREEN REGISTER
+0001  MES Overview
+1000  RM Stores Dashboard
+1101  GRN Monitor
+1102  RM Inventory
+2000  Planning Dashboard
+3000  Production Dashboard
+4000  Quality Dashboard
+4101  RM Usage Decision
+4201  TDC Management
+5000  Maintenance Dashboard
+6000  Reports Dashboard
+6101  Supplier Report
+9001  User Management
+9002  Master Data
+
+INSTALL
+1. Stop frontend (Ctrl+C).
+2. Back up the current frontend folder.
+3. Replace frontend files with this package.
+4. Run: npm install
+5. Run: npm run dev
+6. Browser: Ctrl+F5
+
+No database or backend migration is required for this UI/navigation update.

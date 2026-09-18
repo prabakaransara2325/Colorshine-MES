@@ -1,0 +1,70 @@
+COLORSHINE MES V2.0.5 - RM ANALYSIS UPDATE
+==========================================
+
+This update adds complete raw-material supplier/grade/heat/chemical/mechanical
+traceability to both GRN Monitor and RM Inventory, plus downloadable management
+analysis CSV files.
+
+WHAT CHANGED
+------------
+1. GRN Monitor table now shows separately:
+   - MES Batch
+   - Supplier Batch
+   - Supplier
+   - Supplier Grade (vendor_grade)
+   - Heat No
+   - Steel Grade (hr_grade)
+   - Material, thickness, width, weight, quality, stock
+
+2. GRN eye/view opens Complete RM Analysis drawer with:
+   - GRN / PO / supplier identification
+   - Supplier Batch / Supplier Grade / Steel Grade / Heat No / TC No
+   - ALL chemical properties
+   - ALL mechanical properties
+   - Dimensions / coating / general / surface properties
+
+3. RM Inventory has the same supplier/grade/heat visibility and same analysis drawer.
+
+4. Download Analysis button on both screens exports current filtered dataset as CSV.
+   The CSV is Excel-compatible and contains one row per batch plus dynamic columns for
+   ALL Supplier TC parameters, suitable for management analysis/pivots.
+
+5. Per-batch analysis drawer has Download Batch Analysis.
+
+DATABASE
+--------
+NO database migration is required. This update uses the existing Phase-1 tables:
+rm_supplier_tc, rm_supplier_tc_result, quality_parameter_master, views and inventory.
+
+INSTALL
+-------
+Replace these files under your existing project root, for example:
+D:\Colorshine\Color_MES\ColorshineMes
+
+Backend:
+  backend\src\routes\grn.ts
+  backend\src\routes\inventory.ts
+
+Frontend:
+  frontend\src\pages\GRN.tsx
+  frontend\src\pages\Inventory.tsx
+  frontend\src\components\BatchAnalysisDrawer.tsx
+  frontend\src\components\Shell.tsx
+  frontend\src\lib\export.ts
+  frontend\src\styles.css
+  frontend\package.json
+
+Then restart BOTH applications:
+
+Backend PowerShell:
+  cd D:\Colorshine\Color_MES\ColorshineMes\backend
+  npm run dev
+
+Frontend PowerShell:
+  cd D:\Colorshine\Color_MES\ColorshineMes\frontend
+  npm run dev
+
+Browser:
+  Ctrl + F5
+
+No npm install is required if v0.4 is already running because no new dependency was added.

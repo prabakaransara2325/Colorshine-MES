@@ -1,0 +1,50 @@
+import './types';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import pinoHttp from 'pino-http';
+import { config } from './config';
+import { pool } from './db';
+import { requestId } from './middleware/request-id';
+import { errorHandler } from './middleware/error';
+import { authRouter } from './routes/auth';
+import { dashboardRouter } from './routes/dashboard';
+import { grnRouter } from './routes/grn';
+import { qualityRouter } from './routes/quality';
+import { inventoryRouter } from './routes/inventory';
+import { reportsRouter } from './routes/reports';
+import { mastersRouter } from './routes/masters';
+import { tdcRouter } from './routes/tdc';
+import { integrationRouter } from './routes/integration';
+import { adminUsersRouter } from './routes/admin-users';
+import { userPreferencesRouter } from './routes/user-preferences';
+import { planningRouter } from './routes/planning';
+
+const app=express();
+app.disable('x-powered-by');
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(cors({ origin: config.corsOrigin, credentials: false }));
+app.use(express.json({limit:'20mb'}));
+app.use(requestId);
+app.use(pinoHttp());
+
+app.get('/health', async (_req,res)=>{
+  const r=await pool.query('SELECT now() server_time, current_database() database');
+  res.json({status:'ok',...r.rows[0]});
+});
+app.use('/api/auth',authRouter);
+app.use('/api/admin',adminUsersRouter);
+app.use('/api/user',userPreferencesRouter);
+app.use('/api/integration/sap',integrationRouter);
+app.use('/api/dashboard',dashboardRouter);
+app.use('/api/grn',grnRouter);
+app.use('/api/rm-quality',qualityRouter);
+app.use('/api/rm-inventory',inventoryRouter);
+app.use('/api/reports',reportsRouter);
+app.use('/api/planning',planningRouter);
+app.use('/api/masters',mastersRouter);
+app.use('/api/tdc',tdcRouter);
+app.use((_req,res)=>res.status(404).json({error:'Route not found'}));
+app.use(errorHandler);
+
+app.listen(config.port,()=>console.log(`Colorshine MES API listening on http://localhost:${config.port}`));

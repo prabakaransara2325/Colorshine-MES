@@ -1,0 +1,17 @@
+Colorshine MES V2 v0.11.1 - Changed Files
+===========================================
+backend/sql/42_tdc_source_templates_seed_v0111.sql
+backend/scripts/apply-v0111-tdc-source-seed.cjs
+backend/scripts/verify-v0111-tdc-source-seed.cjs
+backend/APPLY_V0111_TDC_SOURCE_SEED.bat
+backend/VERIFY_V0111_TDC_SOURCE_SEED.bat
+backend/package.json
+backend/src/routes/tdc.ts
+frontend/package.json
+frontend/src/pages/TDCWizard.tsx
+frontend/src/components/Shell.tsx
+frontend/src/styles.css
+README.md
+README_V0_11_1.md
+V0_11_1_INSTALL.txt
+CHANGED_FILES_V0111.txt

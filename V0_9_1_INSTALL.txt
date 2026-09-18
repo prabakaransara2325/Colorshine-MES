@@ -1,0 +1,14 @@
+COLORSHINE MES V2.0.9.1
+
+1. Preserve your existing backend .env and frontend .env.
+2. Replace project files with this package.
+3. Run SQL 18 v2 if not already applied:
+   backend/sql/18_masters_module_and_tolerance_v2.sql
+4. Run SQL 19:
+   backend/sql/19_inventory_master_plant2000_test_load.sql
+5. Restart backend and frontend.
+6. Ctrl+F5 in Chrome.
+7. Open Screen 1102 - RM Inventory.
+
+Expected inventory after SQL 19:
+983 rows / 14,979.908 MT / Plant 2000.

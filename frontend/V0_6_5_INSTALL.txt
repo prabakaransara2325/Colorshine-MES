@@ -1,0 +1,32 @@
+COLORSHINE MES V2 - FRONTEND v0.6.5
+CINEMATIC PROFESSIONAL LOGIN UPDATE
+
+Changes
+-------
+1. Keeps the static manufacturing process artwork; no artificial coil object.
+2. Adds a very slow cinematic pan/zoom on the process artwork.
+3. Adds a subtle moving light sweep over the existing blue prepainted coil in the image.
+4. Uses bottom-left caption:
+   Raw HR Coil → Prepainted Coils → Customer
+   Traceable. Controlled. Connected.
+5. Adds a soft dark caption gradient for readability.
+6. Refines the login card with restrained glass/shadow treatment.
+7. Adds a soft blue focus glow to Username/Password fields.
+8. Adds a subtle light sweep to the Sign In button on hover.
+9. Shows live MES backend status on the login card.
+10. Adds a short login-success fade/slide transition before opening the dashboard.
+11. Maintains responsive Desktop / Laptop / Tablet / Mobile behavior.
+12. Honors prefers-reduced-motion accessibility settings.
+
+Install
+-------
+Replace the existing frontend folder with this one, or copy its contents into:
+D:\Colorshine\Color_MES\ColorshineMes\frontend
+
+Then run:
+  npm install
+  npm run dev
+
+Refresh browser with Ctrl + F5.
+
+No backend or database changes are required.

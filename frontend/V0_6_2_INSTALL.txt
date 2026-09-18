@@ -1,0 +1,13 @@
+COLORSHINE MES V2.0.6.2 - LOGIN COATED COIL REFINEMENT
+
+Changes:
+- Replaced the artificial CSS coil/spool with an inline SVG prepainted blue steel coil.
+- Front wound face rotates while the complete coil translates horizontally.
+- Added reflective blue coating, wound-layer detail, metallic core and realistic ground shadow.
+- Preserves: Raw HR Coil -> Prepainted Coils -> Customer wording.
+- No backend or database changes.
+
+INSTALL
+1. Copy/replace the frontend files into your existing ColorshineMes\frontend folder.
+2. Run npm run dev.
+3. In Chrome use Ctrl+F5.

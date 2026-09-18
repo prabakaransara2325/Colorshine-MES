@@ -1,0 +1,20 @@
+COLORSHINE MES V2 v0.10.3
+
+1. Extract over:
+   D:\Colorshine\Color_MES\ColorshineMes
+
+2. Keep your existing backend/.env and frontend/.env files.
+
+3. Run:
+   D:\Colorshine\Color_MES\ColorshineMes\backend\APPLY_V0103_DYNAMIC_RUNTIME_FRAMEWORK.bat
+
+4. Restart backend and frontend.
+
+5. Browser: Ctrl + F5
+
+New/updated screens:
+7102 Work Center Master - Company + Plant + capacity milestones
+7104 Group Code & Dynamic Controls - rules + screen bindings
+7105 Operation Master - Company + Plant + Work Center operations
+
+No business master rows are seeded.

@@ -1,0 +1,14 @@
+COLORSHINE MES V2 v0.10.10 - PLANNING FOCUS UI
+
+1. Stop backend and frontend.
+2. Extract over D:\Colorshine\Color_MES\ColorshineMes
+3. No SQL migration required.
+4. Restart backend and frontend.
+5. Press Ctrl+F5 in Chrome.
+6. Footer must show MES V2 0.10.10.
+
+Sales Order Monitor columns:
+SO/Item, Material, Qty (MT), Sold-To Customer, Plant, Required Date, Release Date,
+Thickness (mm), Width (mm), Steel Grade, Quality Grade, Coating GSM, Jet Printing, Guardfilm, Planning Status.
+
+Route Master KPI tiles removed.

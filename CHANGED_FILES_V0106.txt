@@ -1,0 +1,21 @@
+COLORSHINE MES V2 v0.10.6 - CHANGED FILES
+
+Frontend
+- frontend/src/pages/MastersDashboard.tsx        NEW - live Masters Control Center
+- frontend/src/App.tsx                          Masters routes cleaned up
+- frontend/src/navigation.ts                    Screen 9002 separated from manufacturing Masters
+- frontend/src/components/Shell.tsx             Admin shortcut opens Masters Control Center
+- frontend/src/pages/Masters.tsx                Reference tabs made safe/read-only where needed
+- frontend/src/styles.css                       Scoped clean Masters dashboard styling
+- frontend/package.json                         Version 0.10.6
+
+Backend
+- backend/src/routes/masters.ts                  Live /masters/overview + missing read APIs + ADMIN Plant-2000 bypass
+- backend/scripts/verify-v0106-masters.cjs       NEW verification utility
+- backend/VERIFY_V0106_MASTERS.bat               NEW one-click verification
+- backend/package.json                           Version 0.10.6
+
+Documentation
+- README_V0_10_6.md
+- V0_10_6_INSTALL.txt
+- CHANGED_FILES_V0106.txt

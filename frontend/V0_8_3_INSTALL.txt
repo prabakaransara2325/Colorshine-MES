@@ -1,0 +1,34 @@
+COLORSHINE MES V2.0.8.3 - USER FAVORITES
+==========================================
+
+WHAT IS NEW
+-----------
+1. MES Overview has a compact "My Favorites" island directly below KPI tiles.
+2. Each user can keep up to 8 favorite screens.
+3. Favorites are stored in PostgreSQL per user (not browser-local storage).
+4. Favorite tiles are color-highlighted by module.
+5. Open Modules & Screens and click the star on any implemented screen to add/remove it.
+6. The current screen also has a star in the screen-context strip.
+7. Screen search results also provide a favorite star.
+8. Favorite records reference screen_id/screen_code, so later screen-number changes do not break shortcuts.
+
+DATABASE
+--------
+Prerequisite: 11_module_screen_master.sql
+Then run:     12_user_screen_favorites.sql
+
+BACKEND
+-------
+Restart backend after replacing files:
+  cd D:\Colorshine\Color_MES\ColorshineMes\backend
+  npm run dev
+
+FRONTEND
+--------
+Restart frontend:
+  cd D:\Colorshine\Color_MES\ColorshineMes\frontend
+  npm run dev
+
+Then press Ctrl+F5 in Chrome.
+
+No new npm package is required.

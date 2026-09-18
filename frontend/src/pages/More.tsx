@@ -1,0 +1,1 @@
+import {NavLink} from 'react-router-dom';import {Boxes,FileText,UsersRound} from 'lucide-react';export default function More(){return <div className="more-page"><h1>More</h1><NavLink to="/suppliers"><UsersRound/>Supplier Report</NavLink><NavLink to="/masters"><Boxes/>Master Data</NavLink><NavLink to="/tdc"><FileText/>TDC Management</NavLink></div>}

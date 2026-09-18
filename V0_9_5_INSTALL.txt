@@ -1,0 +1,25 @@
+COLORSHINE MES V2 v0.9.5 INSTALL
+
+1. Back up your current project folder.
+2. Replace backend/frontend files with this package; preserve your .env files.
+3. In pgAdmin run:
+   a) backend/sql/23_fresh_rm_inventory_reset_and_upload_foundation.sql
+   b) backend/sql/24_rm_qa_reference_stage_load.sql
+4. Restart backend:
+   cd D:\Colorshine\Color_MES\ColorshineMes\backend
+   npm install
+   npm run dev
+5. Restart frontend:
+   cd D:\Colorshine\Color_MES\ColorshineMes\frontend
+   npm install
+   npm run dev
+6. Ctrl+F5 in browser.
+
+Expected BEFORE the new current inventory is uploaded:
+- GRN Monitor: 0 rows (pilot test row removed)
+- RM Inventory: 0 rows
+- No RM Inventory KPI tiles
+- RM Inventory filters: Material Code, Batch No, Storage Location, Heat No, Supplier, QA Grade, Steel Grade
+- RM_QA reference staging: 8,714 rows
+
+Do not run archived SQL 22.

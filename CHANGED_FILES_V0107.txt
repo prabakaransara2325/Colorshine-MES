@@ -1,0 +1,14 @@
+COLORSHINE MES V2 v0.10.7 - CHANGED FILES
+
+backend/src/security.ts
+backend/src/routes/auth.ts
+backend/src/scripts/seed-admin.ts
+backend/sql/39_repair_system_admin_access_v0107.sql
+backend/scripts/apply-v0107-admin-access-repair.cjs
+backend/REPAIR_ADMIN_ACCESS_V0107.bat
+backend/package.json
+frontend/package.json
+frontend/src/components/Shell.tsx
+V0_10_7_INSTALL.txt
+README_V0_10_7.md
+CHANGED_FILES_V0107.txt

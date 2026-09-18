@@ -1,0 +1,30 @@
+COLORSHINE MES V2 v0.9.7 - INSTALL / REBUILD
+
+1. Stop backend and frontend.
+2. Back up your current project folder and PostgreSQL database.
+3. Copy v0.9.7 files over D:\Colorshine\Color_MES\ColorshineMes
+   Keep your existing backend\.env and frontend\.env.
+4. From backend root run:
+
+   cd D:\Colorshine\Color_MES\ColorshineMes\backend
+   npm run rebuild:rm-opening
+
+   OR double-click REBUILD_RM_OPENING_V097.bat
+
+5. Expected:
+   8,692 coils
+   8,689 available
+   3 quality hold
+   0 validation errors
+   stock dates between 2025-01-01 and rebuild date
+
+6. Restart services:
+   backend:  npm run dev
+   frontend: npm run dev
+
+7. Browser: Ctrl + F5
+
+8. Optional DB verification:
+   backend\sql\28_verify_rm_v097.sql
+
+Screen 1102 now loads 200 rows/page by default and shows a loading overlay while queries run.

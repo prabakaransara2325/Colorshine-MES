@@ -1,0 +1,13 @@
+COLORSHINE MES V2 FRONTEND - CURRENT VERSION 0.6.5
+
+Current login design is the approved professional direction:
+- Real process artwork only; no separately rendered coil object.
+- Slow cinematic image movement.
+- Coating-light sweep on the real blue prepainted coil already present in the artwork.
+- Centered Colorshine logo and neutral "Welcome" greeting.
+- Raw HR Coil → Prepainted Coils → Customer.
+- Traceable. Controlled. Connected.
+- Live MES service indicator.
+- Responsive and reduced-motion aware.
+
+All existing Phase-1 modules and prior fixes remain included.

@@ -1,0 +1,13 @@
+COLORSHINE MES V2 v0.10.6 - CLEAN MASTERS CONTROL CENTER
+
+1. Stop backend and frontend.
+2. Extract over D:\Colorshine\Color_MES\ColorshineMes
+3. If v0.10.5 master creation was not completed, run:
+   backend\APPLY_V0105_SAP_SO_INBOUND.bat
+4. Restart backend and frontend.
+5. Press Ctrl+F5.
+6. Open Module 7 - Masters, Screen 7000.
+
+Expected approved workbook counts:
+Materials 12 | Work Centers 12 | Operations 12 | Thickness 94 | Routes 33
+Thickness tolerance exceptions must be 0 (rule = +/- 0.005 mm).

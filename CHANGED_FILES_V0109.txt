@@ -1,0 +1,9 @@
+frontend/src/components/UI.tsx
+frontend/src/components/Shell.tsx
+frontend/src/pages/SalesOrderMonitor.tsx
+frontend/src/styles.css
+frontend/package.json
+backend/package.json
+README_V0_10_9.md
+V0_10_9_INSTALL.txt
+CHANGED_FILES_V0109.txt

@@ -1,0 +1,43 @@
+{
+  "name": "colorshine-mes-v2-backend",
+  "version": "0.11.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "seed:admin": "tsx src/scripts/seed-admin.ts",
+    "import:rm-opening": "node scripts/import-rm-opening.cjs",
+    "rebuild:rm-opening": "node scripts/rebuild-rm-opening-v097.cjs",
+    "migrate:v098": "node scripts/apply-v098-layout-migration.cjs",
+    "migrate:v0103": "node scripts/apply-v0103-dynamic-runtime-framework.cjs",
+    "migrate:v0104": "node scripts/apply-v0104-master-creation.cjs",
+    "migrate:v0105": "node scripts/apply-v0105-sap-so-inbound.cjs",
+    "import:sap-so-sample": "node scripts/import-sap-so-sample-v0105.cjs",
+    "repair:v0107-admin-access": "node scripts/apply-v0107-admin-access-repair.cjs",
+    "migrate:v0110": "node scripts/apply-v0110-tdc-template-workflow.cjs",
+    "migrate:v0111": "node scripts/apply-v0111-tdc-source-seed.cjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "pino": "^9.9.4",
+    "pino-http": "^10.5.0",
+    "zod": "^4.1.5",
+    "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.3.0",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

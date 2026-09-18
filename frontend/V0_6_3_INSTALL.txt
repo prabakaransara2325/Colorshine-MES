@@ -1,0 +1,16 @@
+COLORSHINE MES V2.0.6.3 - LOGIN ROLLING COIL FIX
+
+Changes:
+- "Welcome back" changed permanently to "Welcome".
+- Replaced the floating/spool-like animation with a grounded prepainted steel coil.
+- Coil moves only horizontally along the floor; no bounce or random flying effect.
+- Coil face rotation is synchronized with horizontal travel and reverses correctly.
+- Added visible wound layers, metal bore, reflective blue coating and steel straps.
+- Existing wording retained: Raw HR Coil -> Prepainted Coils -> Customer.
+- No backend or database changes.
+
+Patch install:
+1. Copy patch contents into your existing frontend folder.
+2. Replace existing files.
+3. Restart: npm run dev
+4. Browser: Ctrl + F5

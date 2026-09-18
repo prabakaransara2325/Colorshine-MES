@@ -1,0 +1,25 @@
+COLORSHINE MES V2 v0.9.8 INSTALL
+================================
+
+1. Stop frontend and backend.
+2. Copy/overwrite v0.9.8 files into:
+   D:\Colorshine\Color_MES\ColorshineMes
+3. Preserve your existing backend\.env and frontend\.env.
+4. Open PowerShell:
+
+   cd D:\Colorshine\Color_MES\ColorshineMes\backend
+   npm run migrate:v098
+
+   OR double-click backend\APPLY_V098_REPORT_LAYOUT.bat
+
+5. Restart backend:
+   npm run dev
+
+6. Restart frontend:
+   cd D:\Colorshine\Color_MES\ColorshineMes\frontend
+   npm run dev
+
+7. Browser: Ctrl + F5
+
+NO RM DATA RELOAD IS REQUIRED.
+The existing 8,692 coils, GRN, QA, chemistry and mechanical data remain unchanged.

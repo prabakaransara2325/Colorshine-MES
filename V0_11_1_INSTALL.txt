@@ -1,0 +1,27 @@
+COLORSHINE MES V2 v0.11.1
+TDC SOURCE TEMPLATES + INITIAL TDC SEED
+=========================================
+
+1) BACK UP PostgreSQL.
+2) Stop Backend and Frontend.
+3) Extract this package over:
+   D:\Colorshine\Color_MES\ColorshineMes
+4) Open backend folder.
+5) Run:
+   APPLY_V0111_TDC_SOURCE_SEED.bat
+6) Then run:
+   VERIFY_V0111_TDC_SOURCE_SEED.bat
+7) Restart Backend and Frontend.
+8) Ctrl+F5 in Chrome.
+9) Footer must show MES V2 0.11.1.
+
+Expected TDC Register:
+- BGL/OEM/0011    APPROVED V01
+- CRFH/OEM/0002   APPROVED V01
+- HRPO/CIPL/0001  APPROVED V01
+
+IMPORTANT:
+- Existing user TDCs are not overwritten.
+- Imported source TDCs are immutable historical V01 versions.
+- Historical approval rows show LEGACY_IMPORT.
+- Number Objects are not incremented by the import.

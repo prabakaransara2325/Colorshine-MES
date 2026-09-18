@@ -1,0 +1,25 @@
+COLORSHINE MES V2.0.6 - LOGIN UI UPDATE
+
+WHAT CHANGED
+- Supplied process-flow artwork fills the login screen.
+- Supplied Colorshine logo is centered in the login card and remains the app/favicon logo.
+- Login card is professionally overlaid on the process image.
+- Added a subtle rolling + spinning steel-coil animation at the bottom of the login scene.
+- Responsive layouts for desktop/laptop/tablet/mobile.
+- Reduced-motion accessibility supported.
+- No backend/database changes.
+
+INSTALL (REPLACE FRONTEND)
+1. Stop the frontend (Ctrl+C).
+2. Backup D:\Colorshine\Color_MES\ColorshineMes\frontend if desired.
+3. Replace the frontend folder contents with this package.
+4. From PowerShell:
+   cd D:\Colorshine\Color_MES\ColorshineMes\frontend
+   npm install
+   npm run dev
+5. In Chrome press Ctrl+F5.
+
+PATCH INSTALL
+If using the patch package, extract it into:
+D:\Colorshine\Color_MES\ColorshineMes\frontend
+and allow file replacement.

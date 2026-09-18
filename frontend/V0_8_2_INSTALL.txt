@@ -1,0 +1,17 @@
+COLORSHINE MES V2 - FRONTEND v0.8.2
+
+Changes
+-------
+1. User Add/Edit is now a full page instead of a large modal.
+2. New provisional screen 9003 - User Maintenance.
+3. Module launcher is anchored below the top-left Modules button.
+4. Launcher uses a darker industrial sidebar and color-accented screen tiles.
+5. Access-group cards use distinct Colorshine-friendly accents.
+6. Existing small password reset dialog remains modal.
+
+Install
+-------
+Replace the frontend folder contents, then run:
+  npm run dev
+
+No backend or database change is required for this UI update.

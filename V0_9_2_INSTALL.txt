@@ -1,0 +1,15 @@
+COLORSHINE MES V2 - v0.9.2
+
+1. Replace the existing project files with this package.
+2. Preserve your existing backend/frontend .env files.
+3. If SQL 19 is already loaded and RM/WIP/FG total = 983 rows, do NOT rerun SQL 19.
+4. Run backend/sql/20_reports_plant_stock.sql once.
+5. Restart backend with npm run dev.
+6. Restart frontend with npm run dev.
+7. Browser Ctrl+F5.
+
+Expected:
+- Screen 1102 = RM Inventory only (174 RM rows before filters).
+- No Sales Order columns on screen 1102.
+- Reports module contains Screen 6109 = Plant Stock Report.
+- Screen 6109 shows detailed RM/WIP/FG stock with requested filters.

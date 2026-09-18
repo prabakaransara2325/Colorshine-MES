@@ -1,0 +1,31 @@
+COLORSHINE MES V2 v0.11.1 - IMPLEMENTATION CHECK
+====================================================
+Scope: Company 2000 / Plant 2000
+
+Implemented:
+[OK] Three system-created templates remain ACTIVE:
+     - BGL / GL
+     - CRFH
+     - HRPO
+[OK] Source default specifications loaded into templates:
+     - BGL / GL: 29 mapped source fields / 29 populated defaults
+     - CRFH: 27 populated defaults
+     - HRPO: 20 populated defaults
+[OK] Historical approved TDC seed:
+     - BGL/OEM/0011 - BONDADA GREEN ENGINEERING PVT LTD
+     - CRFH/OEM/0002 - KRISHCA STRAPPING SOLUTIONS LTD
+     - HRPO/CIPL/0001 - JBM GROUP
+[OK] Imported versions are V01 / APPROVED / COMPLETE and immutable.
+[OK] Four legacy approval stages recorded as LEGACY_IMPORT for each imported TDC.
+[OK] CRFH customer comments preserved; customer changes stored in Final Agreed Specification.
+[OK] HRPO Tensile Strength corrected to MAX mode.
+[OK] Separate TDC Document No added to header and wizard.
+[OK] Future TDC numbers remain system-generated using Number Objects.
+[OK] Import does not consume or move Number Objects backwards.
+[OK] No existing user-created TDC is deleted or overwritten.
+[OK] 61 TS/TSX source files passed syntax transpile check with 0 diagnostics.
+[OK] v0.11.1 apply/verify scripts passed node --check.
+
+Source import decision:
+- The three live starter TDCs use Bondada BGL, CRFH Krishca and HRPO JBM.
+- The separate Shekhat BGL/DOM PDF was used during BGL template design/reference, but is not inserted as a fourth live TDC in this release.

@@ -1,0 +1,20 @@
+COLORSHINE MES V2 v0.10.5
+
+1. Stop backend and frontend.
+2. Extract this patch over D:\Colorshine\Color_MES\ColorshineMes
+3. Run:
+   backend\APPLY_AND_IMPORT_V0105_SAP_SO.bat
+4. Restart backend and frontend.
+5. Ctrl + F5.
+6. Open Screen 2101 - SAP Sales Order Monitor.
+
+Expected sample after import:
+SO 3600000181
+Items 5
+Qty 1,205.240 MT
+Routes 26
+Order details 7,636
+Chem/Mech 776
+
+NOTE: SAP material BGLSAZ150CF is intentionally not auto-converted to workbook master BGLAZ150CF.
+It will show MASTER PENDING until the material-code mapping/master decision is approved.

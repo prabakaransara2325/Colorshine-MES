@@ -1,0 +1,17 @@
+COLORSHINE MES V2 - FRONTEND v0.8.5
+
+Launcher polish update:
+- clean compact MES Overview home row
+- no overlapping screen text
+- no horizontal scrollbar in module rail
+- smaller professional launcher
+- existing favorites and working-screen features retained
+
+Replace the frontend folder or copy this version over the existing frontend.
+Do not delete your backend .env or database.
+
+Start:
+  npm install
+  npm run dev
+
+Then Ctrl+F5 in Chrome.
