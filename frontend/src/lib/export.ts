@@ -60,6 +60,27 @@ const commonColumns=[
   ['Blocked (MT)','blocked_weight_mt']
 ] as const;
 
+// On-screen GRN Monitor table/layout columns (screen 1101). Distinct from
+// commonColumns above, which is the download-analysis CSV column set.
+export const grnMonitorColumns=[
+  ['GRN','sap_grn_no'],
+  ['MES Batch','batch_no'],
+  ['Supplier Batch','vendor_batch_no'],
+  ['Supplier','supplier_name'],
+  ['Supplier Grade','vendor_grade'],
+  ['Heat No','heat_no'],
+  ['Steel Grade','hr_grade'],
+  ['Material','sap_material_code'],
+  ['Thickness (mm)','batch_thickness_mm'],
+  ['Width (mm)','batch_width_mm'],
+  ['Weight (MT)','batch_weight_mt'],
+  ['Quality','quality_status'],
+  ['Stock','stock_status_derived'],
+  ['Reversed By','reversed_by'],
+  ['Reversed At','reversed_at'],
+  ['Analysis','__analysis__']
+] as const;
+
 export function downloadGrnAnalysis(rows:any[],filename='GRN_RM_Analysis.csv'){
   const params=parameterColumns(rows);
   const headers=[...commonColumns.map(c=>c[0]),...params.map(p=>`${p.category||'PARAMETER'} - ${p.name||p.code}${p.uom?` (${p.uom})`:''}`)];

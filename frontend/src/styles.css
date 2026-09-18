@@ -1865,3 +1865,8 @@
 }
 .reversal-row td{background:#fdecea!important;color:#8a3733;font-size:11px}
 .reversal-row td small{color:#a53c38;font-weight:800;letter-spacing:.06em;font-size:8px}
+
+/* Reusable report summary bar (No. of Coils / Total Qty) - every tabular report */
+.report-summary-bar{display:flex;gap:10px;margin:0 0 8px;flex-wrap:wrap}
+.report-summary-bar>span{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:10px;color:#69788d;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.report-summary-bar>span>b{font-size:14px;color:var(--navy);font-family:Manrope;text-transform:none;letter-spacing:0}

@@ -26,10 +26,10 @@ export default function SalesOrderMonitor(){
 
   return <div className="sap-so-page-v0105 content-first-page">
     <div className="sap-so-filter-line">
-      <input value={filters.soNo} onChange={set('soNo')} placeholder="SO No"/>
-      <input value={filters.item} onChange={set('item')} placeholder="Item"/>
-      <input value={filters.material} onChange={set('material')} placeholder="Material"/>
-      <input className="wide" value={filters.customer} onChange={set('customer')} placeholder="Customer / Code"/>
+      <input autoComplete="off" value={filters.soNo} onChange={set('soNo')} placeholder="SO No"/>
+      <input autoComplete="off" value={filters.item} onChange={set('item')} placeholder="Item"/>
+      <input autoComplete="off" value={filters.material} onChange={set('material')} placeholder="Material"/>
+      <input autoComplete="off" className="wide" value={filters.customer} onChange={set('customer')} placeholder="Customer / Code"/>
       <select value={filters.status} onChange={set('status')}><option value="">Status: All</option><option value="READY_FOR_PLANNING">Ready for Planning</option><option value="MASTER_PENDING">Master Pending</option><option value="ROUTE_PENDING">Route Pending</option></select>
       <button className="primary compact-btn" onClick={search} disabled={loading}><Search size={14}/> Search</button>
       <button className="ghost-btn compact-btn" onClick={reset}>Reset</button>

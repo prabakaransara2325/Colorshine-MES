@@ -92,15 +92,17 @@ inventoryRouter.get('/report', async (req,res) => {
         carbon,manganese,sulphur,phosphorus,silicon,aluminium,
         carbon_equivalent,nitrogen,copper,molybdenum,chromium,nickel,
         rm_supplier,imported_at,updated_at,
-        count(*) OVER()::int AS total_count
+        count(*) OVER()::int AS total_count,
+        sum(batch_qty_mt) OVER()::numeric(16,3) AS total_qty_mt
       FROM mes.vw_rm_store_inventory
       ${where}
       ORDER BY stock_generated_date DESC NULLS LAST,material_code,batch_no
       LIMIT $9 OFFSET $10`,params);
 
   const total=data.rows.length ? Number(data.rows[0].total_count||0) : 0;
-  const rows=data.rows.map(({total_count,...r}:any)=>r);
-  res.json({scope:'RM_ONLY',rows,total,limit,offset,hasMore:offset+rows.length<total});
+  const totalQtyMt=data.rows.length ? Number(data.rows[0].total_qty_mt||0) : 0;
+  const rows=data.rows.map(({total_count,total_qty_mt,...r}:any)=>r);
+  res.json({scope:'RM_ONLY',rows,total,totalQtyMt,limit,offset,hasMore:offset+rows.length<total});
 });
 
 // Filter options deliberately exclude Batch No and Heat No datalists. With ~8.7k
